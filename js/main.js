@@ -14,7 +14,7 @@ import { montarPrueba, aplicarParametros } from './ui/prueba.js';
 import { actualizarTitulo, actualizarFavicon, mostrarMensaje, anunciar, pedirPermisoAvisos, notificar } from './ui/avisos.js';
 import { desbloquearAudio } from './audio/motor.js';
 import { tocarCampanita } from './audio/campanita.js';
-import { montarFondoNocturna } from './fondos/nocturna.js';
+import { aplicarTema, TEMAS } from './temas.js';
 import { nombreBebida, nombrePedido } from './nombres.js';
 
 const FACTOR = modoPrueba ? 60 : 1;
@@ -37,7 +37,22 @@ const app = {
 
 const temporizador = crearTemporizador(app, { factor: FACTOR, alCambiar: alCambiarTemporizador, alTerminar });
 const escena = crearEscena(marcoEscena, { movimiento, factor: FACTOR });
-montarFondoNocturna(document.querySelector('.fondo'), { movimiento });
+const capaFondo = document.querySelector('.fondo');
+let tema = aplicarTema(app.datos.ajustes.tema, { raiz, fondo: capaFondo, movimiento });
+escena.cambiarTema({ carita: tema.carita });
+
+// Cambio de tema: fondo, luz de la escena, bebida y miniaturas de la carta se vuelven a armar.
+function cambiarTema(id) {
+  if (!TEMAS[id]) return;
+  app.datos.ajustes.tema = id;
+  app.guardar();
+  tema = aplicarTema(id, { raiz, fondo: capaFondo, movimiento });
+  escena.cambiarTema({ carita: tema.carita });
+  carta.invalidar();
+  acento = '';
+  alinearMesa();
+  pintar();
+}
 
 // ---------- Bebida y tamaño ----------
 let bebidaMostrada = '';
@@ -71,6 +86,7 @@ const controles = montarControles(raiz, {
 
 const carta = montarCarta(raiz, {
   datos: () => app.datos,
+  carita: () => tema.carita,
   // El tamaño no se cambia con una taza en curso; la bebida sí (aparece con el mismo nivel).
   bloqueado: () => {
     const e = temporizador.estado();
@@ -108,6 +124,7 @@ const ajustes = montarAjustes(raiz, {
     tocarCampanita({ volumen: app.datos.ajustes.volumen.campanita });
   },
   pedirPermiso: pedirPermisoAvisos,
+  alElegirTema: cambiarTema,
 });
 
 const prueba = modoPrueba ? montarPrueba(raiz, { temporizador, escena, alCambiar: () => latido() }) : null;
@@ -136,8 +153,19 @@ async function cambiarBloque(bloque) {
 }
 
 // ---------- Eventos del temporizador ----------
+// Señal breve de cambio de bloque (el neón del tema retro parpadea con ella).
+let esperaCambio = 0;
+function marcarCambioDeBloque() {
+  raiz.classList.remove('cambio-bloque');
+  void raiz.offsetWidth;
+  raiz.classList.add('cambio-bloque');
+  clearTimeout(esperaCambio);
+  esperaCambio = setTimeout(() => raiz.classList.remove('cambio-bloque'), 1400);
+}
+
 function alCambiarTemporizador(motivo) {
   const e = temporizador.estado();
+  if (['terminar', 'saltar-foco', 'saltar-descanso', 'cambiar-bloque'].includes(motivo)) marcarCambioDeBloque();
   escena.pausar(e.fase === 'pausado');
   if (motivo === 'empezar') anunciar(t('anuncios.empieza', { bloque: t(`bloques.${e.bloque}`).toLocaleLowerCase('es') }));
   if (motivo === 'pausar') anunciar(t('anuncios.pausa'));
@@ -307,6 +335,7 @@ function alinearMesa() {
   const base = raiz.getBoundingClientRect();
   raiz.style.setProperty('--mesa-y', `${Math.round(caja.top - base.top + caja.height * 0.5)}px`);
   raiz.style.setProperty('--escena-x', `${Math.round(caja.left - base.left + caja.width / 2)}px`);
+  raiz.style.setProperty('--escena-abajo', `${Math.round(caja.bottom - base.top)}px`);
 }
 new ResizeObserver(alinearMesa).observe(marcoEscena);
 window.addEventListener('resize', alinearMesa);
@@ -321,6 +350,7 @@ if (modoPrueba) {
       app.datos.seleccion.bebida = id;
       app.guardar();
     },
+    elegirTema: cambiarTema,
   });
 }
 alCambiarTemporizador('inicio');

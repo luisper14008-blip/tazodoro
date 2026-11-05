@@ -46,8 +46,9 @@ export function montarPrueba(app, { temporizador, escena, alCambiar }) {
 }
 
 // Parámetros para capturas: ?prueba=1&bebida=latte&bloque=corto&progreso=50&corriendo=1
-export function aplicarParametros(temporizador, { elegirBebida } = {}) {
+export function aplicarParametros(temporizador, { elegirBebida, elegirTema } = {}) {
   const parametros = new URLSearchParams(location.search);
+  if (parametros.get('tema')) elegirTema?.(parametros.get('tema'));
   if (parametros.get('bebida')) elegirBebida?.(parametros.get('bebida'));
   const bloque = parametros.get('bloque');
   if (['foco', 'corto', 'largo'].includes(bloque)) temporizador.irA(bloque);

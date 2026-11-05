@@ -1,0 +1,146 @@
+/* Tema: Retro de cafetería (años 50 a 70). Crema, mostaza, rojo cereza y verde azulado;
+   pared a franjas, letrero de neón, mostrador con canto cromado y piso en damero. */
+
+.app[data-tema='retro'] {
+  --crema: #f7ecd2;
+  --mostaza: #e2a72e;
+  --cereza: #b8293a;
+  --verde: #227c78;
+  --chocolate: #2e1e17;
+
+  --fondo: var(--crema);
+  --texto: var(--chocolate);
+  --texto-suave: #5a463c;
+  --acento: var(--mostaza);
+  --acento-hover: #efb544;
+  --acento-texto: var(--chocolate);
+  --vidrio: rgba(255, 249, 236, 0.92);
+  --vidrio-fuerte: #fff8ea;
+  --vidrio-borde: #2e1e17;
+  --vidrio-brillo: rgba(255, 255, 255, 0.7);
+  --activo: rgba(226, 167, 46, 0.4);
+  --foco: #1b6662;
+  --sombra-suave: 3px 3px 0 rgba(46, 30, 23, 0.9);
+  --radio: 12px;
+  --radio-grande: 18px;
+  --fuente-marca: 'Yellowtail', 'Josefin Sans', cursive;
+  --fuente-display: 'Josefin Sans', system-ui, sans-serif;
+  --fuente-titulos: 'Josefin Sans', system-ui, sans-serif;
+  --fuente-ui: 'Josefin Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ancho-cifra: 0.62em;
+  --vapor: #9c8b7e;
+  --maquina-cuerpo: #7fc8ba;
+  --maquina-luz: #b9e6dc;
+  --maquina-sombra: #3e8478;
+  color-scheme: light;
+}
+
+/* ---------- Pared, franjas y neón ---------- */
+[data-tema='retro'] .fondo-pared {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(46, 30, 23, 0.04) 0 2px, transparent 2px 46px),
+    linear-gradient(180deg, #fbf3df 0%, #f4e6c6 100%);
+}
+[data-tema='retro'] .fondo-franjas {
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--mesa-y, 60vh) * 0.62);
+  height: 54px;
+  background: linear-gradient(180deg,
+    var(--mostaza) 0 16px, var(--crema) 16px 20px, var(--cereza) 20px 34px, var(--crema) 34px 38px, var(--verde) 38px 54px);
+  box-shadow: 0 2px 0 rgba(46, 30, 23, 0.15);
+}
+[data-tema='retro'] .letrero-neon {
+  position: absolute;
+  left: calc(var(--escena-x, 50%) + min(30vw, 330px));
+  top: calc(var(--mesa-y, 60vh) * 0.12);
+  width: clamp(110px, 12vw, 170px);
+  transform: translateX(-50%);
+}
+[data-tema='retro'] .neon-tubo {
+  stroke: #ff4d5e; stroke-width: 7;
+  filter: drop-shadow(0 0 3px #ff8a94) drop-shadow(0 0 10px rgba(255, 60, 80, 0.75));
+}
+[data-tema='retro'] .neon-vapor { stroke: #45d6c8; filter: drop-shadow(0 0 4px #9df5ea) drop-shadow(0 0 10px rgba(60, 220, 200, 0.7)); }
+
+/* ---------- Mostrador, frente y piso ---------- */
+[data-tema='retro'] .fondo-mostrador {
+  position: absolute; left: 0; right: 0;
+  top: var(--mesa-y, 60vh);
+  height: calc(var(--escena-abajo, 80vh) - var(--mesa-y, 60vh) + 6px);
+  background:
+    radial-gradient(45% 60% at var(--escena-x, 50%) 30%, rgba(255, 255, 255, 0.16), transparent 70%),
+    linear-gradient(180deg, #2b8d88 0%, #227c78 60%, #1d6b67 100%);
+  border-top: 5px solid #d9dee4;
+  box-shadow: inset 0 3px 0 #9aa3ad;
+}
+[data-tema='retro'] .fondo-frente {
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--escena-abajo, 80vh) + 6px);
+  bottom: 58px;
+  border-top: 6px solid #c9ced6;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 3px, transparent 3px 34px),
+    linear-gradient(180deg, #c23243 0%, var(--cereza) 40%, #9c2231 100%);
+}
+[data-tema='retro'] .fondo-piso {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 58px; overflow: hidden;
+  perspective: 260px; background: #1b1412;
+  border-top: 4px solid #c9ced6;
+}
+[data-tema='retro'] .damero {
+  position: absolute; left: -50%; right: -50%; top: 0; height: 240px;
+  transform-origin: 50% 0;
+  transform: rotateX(62deg);
+  background: repeating-conic-gradient(#f4ead4 0 25%, #221816 0 50%) 0 0 / 56px 56px;
+}
+
+/* Sobre el frente cereza, los textos van en crema. */
+[data-tema='retro'] .pedido,
+[data-tema='retro'] .reloj { color: var(--crema); }
+[data-tema='retro'] .estado-linea { color: #fcebd6; }
+[data-tema='retro'] .pedido-flecha { color: #fcebd6; }
+[data-tema='retro'] .reloj { font-weight: 700; text-shadow: 3px 3px 0 rgba(46, 30, 23, 0.55); }
+/* El pedido queda justo en el canto del mostrador: lleva su propio fondo para leerse siempre. */
+[data-tema='retro'] .pedido { background: rgba(46, 30, 23, 0.72); border-color: rgba(255, 244, 226, 0.35); }
+[data-tema='retro'] .pedido:hover, [data-tema='retro'] .pedido[aria-expanded='true'] { background: rgba(46, 30, 23, 0.88); }
+
+/* ---------- Controles con canto oscuro y sombra dura ---------- */
+[data-tema='retro'] .vidrio { -webkit-backdrop-filter: none; backdrop-filter: none; border-width: 2px; }
+[data-tema='retro'] .marca-nombre {
+  font-size: clamp(1.9rem, 3.4vw, 2.4rem); font-weight: 400; color: #d6283c; letter-spacing: 0.01em;
+  text-shadow: 0 0 2px #ff9aa4, 0 0 12px rgba(255, 70, 90, 0.55);
+}
+[data-tema='retro'] .bloque { font-weight: 700; }
+[data-tema='retro'] .bloque[aria-pressed='true'] { background: var(--mostaza); color: var(--chocolate); box-shadow: inset 0 0 0 2px var(--chocolate); }
+[data-tema='retro'] .bloque[aria-pressed='true'] .contador { background: var(--cereza); color: #fff4e2; }
+[data-tema='retro'] .boton-principal { border: 3px solid var(--chocolate); box-shadow: 4px 4px 0 var(--chocolate); text-transform: none; }
+[data-tema='retro'] .boton-principal:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--chocolate); }
+[data-tema='retro'] .atajos { background: var(--crema); color: var(--chocolate); padding: 5px 12px; border-radius: 999px; border: 2px solid var(--chocolate); }
+[data-tema='retro'] .atajo span { color: var(--chocolate); }
+
+/* El neón parpadea cuando cambia el bloque. */
+[data-tema='retro'].cambio-bloque .letrero-neon,
+[data-tema='retro'].cambio-bloque .marca-nombre { animation: parpadeo-neon 1.3s steps(1, end); }
+@keyframes parpadeo-neon {
+  0%, 22%, 40%, 100% { opacity: 1; }
+  12%, 30%, 34% { opacity: 0.25; }
+}
+
+/* En pantallas angostas el letrero quedaría tras las pestañas: la marca ya es de neón. */
+@media (max-width: 600px) {
+  [data-tema='retro'] .letrero-neon { display: none; }
+  [data-tema='retro'] .fondo-piso { height: 52px; }
+  [data-tema='retro'] .fondo-frente { bottom: 52px; }
+}
+
+/* ---------- Vista previa en el selector ---------- */
+.vista-escena[data-vista='retro'] {
+  background:
+    linear-gradient(180deg, #fbf3df 0 34%, #e2a72e 34% 40%, #b8293a 40% 46%, #227c78 46% 52%, #fbf3df 52% 70%, #227c78 70% 82%, transparent 82%),
+    repeating-conic-gradient(#f4ead4 0 25%, #221816 0 50%) 0 0 / 12px 12px;
+  color: #2e1e17;
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 700;
+}
+.vista-escena[data-vista='retro'] .vista-boton { background: #e2a72e; color: #2e1e17; border: 2px solid #2e1e17; border-radius: 999px; }

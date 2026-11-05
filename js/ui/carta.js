@@ -9,8 +9,8 @@ import { semillaDeTexto } from '../util/azar.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
-function miniatura(id) {
-  const render = crearBebida(obtenerBebida(id), { escala: 1, movimiento: false, semilla: semillaDeTexto(id) % 1000 });
+function miniatura(id, carita) {
+  const render = crearBebida(obtenerBebida(id), { escala: 1, movimiento: false, semilla: semillaDeTexto(id) % 1000, carita });
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', render.encuadre(14));
   svg.setAttribute('aria-hidden', 'true');
@@ -21,7 +21,7 @@ function miniatura(id) {
   return svg;
 }
 
-export function montarCarta(app, { datos, bloqueado, alElegirBebida, alElegirTamano }) {
+export function montarCarta(app, { datos, bloqueado, alElegirBebida, alElegirTamano, carita = () => false }) {
   const dialogo = document.createElement('dialog');
   dialogo.className = 'dialogo dialogo-carta';
   dialogo.setAttribute('aria-labelledby', 'titulo-carta');
@@ -138,7 +138,7 @@ export function montarCarta(app, { datos, bloqueado, alElegirBebida, alElegirTam
     abrir(boton) {
       origen = boton;
       if (!dibujadas) {
-        tarjetas.forEach((tarjeta) => tarjeta.querySelector('.tarjeta-ilustracion').append(miniatura(tarjeta.dataset.bebida)));
+        tarjetas.forEach((tarjeta) => tarjeta.querySelector('.tarjeta-ilustracion').replaceChildren(miniatura(tarjeta.dataset.bebida, carita())));
         dibujadas = true;
       }
       pintar();
@@ -147,5 +147,9 @@ export function montarCarta(app, { datos, bloqueado, alElegirBebida, alElegirTam
       dialogo.querySelector('.tarjeta-bebida[aria-pressed="true"]')?.focus();
     },
     pintar: () => dialogo.open && pintar(),
+    // Cambió el tema: las miniaturas se vuelven a dibujar con su luz (y su carita) la próxima vez.
+    invalidar() {
+      dibujadas = false;
+    },
   };
 }

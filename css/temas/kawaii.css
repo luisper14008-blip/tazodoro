@@ -1,0 +1,96 @@
+/* Tema: Pastel kawaii. Rosa, menta, lavanda y crema; todo muy redondeado, con destellos.
+   La bebida lleva una carita que cambia según el nivel (js/bebidas/carita.js). */
+
+.app[data-tema='kawaii'] {
+  --rosa: #ffc4d6;
+  --menta: #bdebd5;
+  --lavanda: #d8c8f2;
+  --crema: #fff6ea;
+  --ciruela: #4e2f52;
+
+  --fondo: #ffe9f0;
+  --texto: var(--ciruela);
+  --texto-suave: #634466;
+  --acento: #ff8fb1;
+  --acento-hover: #ff7aa3;
+  --acento-texto: #3e1f42;
+  --vidrio: rgba(255, 255, 255, 0.66);
+  --vidrio-fuerte: rgba(255, 251, 253, 0.97);
+  --vidrio-borde: rgba(214, 150, 190, 0.6);
+  --vidrio-brillo: rgba(255, 255, 255, 0.95);
+  --activo: rgba(255, 143, 177, 0.3);
+  --foco: #7b3f88;
+  --sombra-suave: 0 8px 22px rgba(170, 90, 140, 0.18);
+  --radio: 22px;
+  --radio-grande: 30px;
+  --fuente-marca: 'Cherry Bomb One', 'M PLUS Rounded 1c', system-ui, sans-serif;
+  --fuente-display: 'Cherry Bomb One', 'M PLUS Rounded 1c', system-ui, sans-serif;
+  --fuente-titulos: 'M PLUS Rounded 1c', system-ui, sans-serif;
+  --fuente-ui: 'M PLUS Rounded 1c', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ancho-cifra: 0.7em;
+  --vapor: #c3aee6;
+  --maquina-cuerpo: #f4adc4;
+  --maquina-luz: #ffd9e4;
+  --maquina-sombra: #c47e98;
+  color-scheme: light;
+}
+
+/* ---------- Fondo ---------- */
+[data-tema='kawaii'] .fondo-cielo {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(55% 40% at 18% 8%, rgba(255, 255, 255, 0.85), transparent 70%),
+    radial-gradient(45% 35% at 85% 20%, rgba(255, 240, 248, 0.8), transparent 70%),
+    linear-gradient(180deg, #ffd6e5 0%, #ecdffb 48%, #dcf3e9 100%);
+}
+[data-tema='kawaii'] .nube {
+  position: absolute; width: calc(200px * var(--e)); transform: translateX(-10%);
+  filter: drop-shadow(0 8px 12px rgba(190, 120, 160, 0.14));
+}
+[data-tema='kawaii'] .nube svg { width: 100%; height: auto; }
+[data-tema='kawaii'] .destello {
+  position: absolute; width: var(--tam); height: var(--tam);
+  animation: titilar 3.8s ease-in-out var(--retraso) infinite;
+}
+[data-tema='kawaii'] .destello svg { width: 100%; height: 100%; filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)); }
+[data-tema='kawaii'] .destellos.quietos .destello { animation: none; opacity: 0.7; }
+@keyframes titilar {
+  0%, 100% { opacity: 0.25; transform: scale(0.7) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(20deg); }
+}
+[data-tema='kawaii'] .fondo-mesa {
+  position: absolute; left: 0; right: 0; bottom: 0; top: var(--mesa-y, 60vh);
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.75) 0 4px, transparent 5px) 0 0 / 30px 30px,
+    radial-gradient(circle, rgba(255, 255, 255, 0.75) 0 4px, transparent 5px) 15px 15px / 30px 30px,
+    linear-gradient(180deg, #ffc8da, #ffb9cf);
+}
+/* Borde festoneado del mantel. */
+[data-tema='kawaii'] .fondo-mesa::before {
+  content: ''; position: absolute; left: 0; right: 0; top: -11px; height: 22px;
+  background: radial-gradient(circle at 11px 11px, #ffc8da 10.5px, transparent 11px) 0 0 / 22px 22px repeat-x;
+}
+
+/* ---------- Controles muy redondos ---------- */
+[data-tema='kawaii'] .marca-nombre { color: #c93d6e; letter-spacing: 0.02em; text-shadow: 2px 2px 0 #fff; }
+[data-tema='kawaii'] .boton-icono { border-radius: 50%; }
+[data-tema='kawaii'] .bloques, [data-tema='kawaii'] .bloque { border-radius: 999px; }
+[data-tema='kawaii'] .bloque[aria-pressed='true'] { box-shadow: inset 0 0 0 2px rgba(255, 143, 177, 0.6); }
+[data-tema='kawaii'] .boton-principal {
+  box-shadow: 0 6px 0 #e86f96, 0 14px 26px rgba(232, 111, 150, 0.35);
+}
+[data-tema='kawaii'] .boton-principal:active { transform: translateY(4px); box-shadow: 0 2px 0 #e86f96; }
+[data-tema='kawaii'] .boton-redondo { background: #fff; border: 2px solid var(--rosa); }
+[data-tema='kawaii'] .reloj { color: #b42d60; text-shadow: 3px 3px 0 #fff; }
+[data-tema='kawaii'] .tarjeta-bebida, [data-tema='kawaii'] .opcion-tamano { border-radius: 26px; background: rgba(255, 255, 255, 0.6); }
+[data-tema='kawaii'] kbd { border-radius: 999px; }
+
+/* ---------- Vista previa en el selector ---------- */
+.vista-escena[data-vista='kawaii'] {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.8) 0 2px, transparent 3px) 0 0 / 12px 12px,
+    linear-gradient(180deg, #ffd6e5 0%, #ecdffb 58%, #ffc8da 58%);
+  color: #d94a77;
+  font-family: 'Cherry Bomb One', 'M PLUS Rounded 1c', sans-serif;
+}
+.vista-escena[data-vista='kawaii'] .vista-boton { background: #ff8fb1; color: #3e1f42; border-radius: 999px; }

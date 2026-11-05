@@ -11,6 +11,7 @@ import { crearRestos, crearRestosVidrio } from './restos.js';
 import { armarOpaco } from './opaco.js';
 import { armarVidrio } from './vidrio.js';
 import { capasVisibles } from './capas.js';
+import { crearCarita } from './carita.js';
 
 export { LUZ, ESCENA };
 
@@ -18,7 +19,7 @@ const NOMBRES_IDS = ['sombraMesa', 'contacto', 'platoLado', 'platoCara', 'platoH
   'brilloSup', 'asa', 'interior', 'abertura', 'labio', 'base', 'textura', 'flor', 'disco', 'tinte', 'chorro', 'sobreBorde', 'sobreBordeIn',
   'capa', 'cavidad', 'sobreFrente', 'bajoFrente', 'pajitaArriba', 'pajitaAbajo', 'pajita', 'crema', 'malva', 'canela', 'perla'];
 
-export function crearBebida(bebida, { escala: escalaPedida = 1, movimiento = true, semilla = 11 } = {}) {
+export function crearBebida(bebida, { escala: escalaPedida = 1, movimiento = true, semilla = 11, carita: conCarita = false } = {}) {
   const def = RECIPIENTES[bebida.recipiente.forma];
   if (!def) throw new Error(`Recipiente desconocido: ${bebida.recipiente.forma}`);
   const escala = escalaPedida * (def.escalaBase ?? 1);
@@ -32,6 +33,9 @@ export function crearBebida(bebida, { escala: escalaPedida = 1, movimiento = tru
   const restos = vidrio ? crearRestosVidrio(bebida, g, semilla + 7) : crearRestos(bebida, g, ids, semilla + 7);
   const armar = vidrio ? armarVidrio : armarOpaco;
   const cuerpo = armar(bebida, g, ids, { superficie, flotantes, restos, movimiento });
+  // La carita (tema kawaii) va dentro del grupo de la taza para inclinarse con los sorbos.
+  const carita = conCarita ? crearCarita(g) : null;
+  if (carita) cuerpo.markup = cuerpo.markup.replace(/<\/g>\s*$/, `${carita.markup}</g>`);
   const coloresChorro = [...new Set((bebida.servido || []).map((paso) => paso.color).filter(Boolean))];
   const { cx, mesa } = g;
 
@@ -88,6 +92,7 @@ export function crearBebida(bebida, { escala: escalaPedida = 1, movimiento = tru
       const p = progresoDetalle();
       superficie.actualizar({ nivel: estado.nivel, modo: estado.modo, capa: vidrio ? visibles.at(-1)?.capa : undefined, p });
       flotantes.actualizar({ nivel: estado.nivel, modo: estado.modo, p, r: g.rIn(h) });
+      carita?.actualizar(estado);
       if (vidrio && !movido) cuerpo.actualizar({ visibles, h, r, nivel: estado.nivel, modo: estado.modo });
       ultimo.nivel = estado.nivel;
       ultimo.modo = estado.modo;
@@ -145,6 +150,7 @@ export function crearBebida(bebida, { escala: escalaPedida = 1, movimiento = tru
       superficie.montar(raiz);
       flotantes.montar(raiz);
       cuerpo.montar?.(raiz);
+      carita?.montar(raiz);
       ultimo = { transform: '', nivel: -1, modo: '' };
       aplicarNivel();
     },

@@ -170,10 +170,11 @@ function crearLluvia(canvas, { movimiento }) {
     id = requestAnimationFrame(cuadro);
   }
 
-  new ResizeObserver(() => {
+  const observador = new ResizeObserver(() => {
     medir();
     if (!movimiento) dibujar(0);
-  }).observe(canvas);
+  });
+  observador.observe(canvas);
 
   return {
     iniciar() {
@@ -184,6 +185,11 @@ function crearLluvia(canvas, { movimiento }) {
     detener() {
       cancelAnimationFrame(id);
       id = 0;
+    },
+    desmontar() {
+      cancelAnimationFrame(id);
+      id = 0;
+      observador.disconnect();
     },
   };
 }
@@ -205,9 +211,16 @@ export function montarFondoNocturna(contenedor, { movimiento = true } = {}) {
     ${plantaMaceta(azar)}`;
   const lluvia = crearLluvia(contenedor.querySelector('.ventana-lluvia'), { movimiento });
   lluvia.iniciar();
-  document.addEventListener('visibilitychange', () => {
+  const alCambiarVisibilidad = () => {
     if (document.hidden) lluvia.detener();
     else lluvia.iniciar();
-  });
-  return lluvia;
+  };
+  document.addEventListener('visibilitychange', alCambiarVisibilidad);
+  // Al cambiar de tema: la lluvia se apaga y se sueltan sus escuchas.
+  return {
+    detener() {
+      lluvia.desmontar();
+      document.removeEventListener('visibilitychange', alCambiarVisibilidad);
+    },
+  };
 }

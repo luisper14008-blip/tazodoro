@@ -189,10 +189,10 @@ export const textos = {
   },
 
   temas: {
-    nocturna: {
-      nombre: 'Cafetería nocturna',
-      frase: 'Lluvia en la ventana y una lámpara cálida.',
-    },
+    nocturna: { nombre: 'Cafetería nocturna', frase: 'Lluvia en la ventana y una lámpara cálida.' },
+    kawaii: { nombre: 'Pastel kawaii', frase: 'Nubes, destellos y una bebida con carita.' },
+    retro: { nombre: 'Retro de cafetería', frase: 'Neón, mostrador cromado y piso en damero.' },
+    kraft: { nombre: 'Kraft natural', frase: 'Papel kraft, hojas y granos en línea fina.' },
   },
 };
 

@@ -3,9 +3,14 @@ import { n, paradas, elipse, caminoSuave } from '../util/svg.js';
 import { mezclarColor } from '../util/color.js';
 import { contorno, perfilPlato } from './recipientes.js';
 
-// Luz cálida desde la lámpara (derecha) y relleno frío desde la ventana (izquierda).
+// Luz de la escena: cálida desde la derecha y relleno frío desde la izquierda. Cada tema la ajusta
+// con fijarLuz() antes de dibujar; las bebidas ya dibujadas se vuelven a armar al cambiar de tema.
 export const LUZ = { calida: '#FFE6BF', fria: '#4F5B7C', sombra: '#211A22' };
 export const PI = Math.PI;
+
+export function fijarLuz(luz) {
+  Object.assign(LUZ, luz);
+}
 
 export const caminoElipse = (cx, cy, rx, ry) =>
   `M${n(cx - rx)} ${n(cy)}A${n(rx)} ${n(ry)} 0 1 0 ${n(cx + rx)} ${n(cy)}A${n(rx)} ${n(ry)} 0 1 0 ${n(cx - rx)} ${n(cy)}Z`;

@@ -67,6 +67,7 @@ async function capturar(url, archivo, [ancho, alto]) {
 // Opciones: --bebida=latte (bebida de las capturas de la app) y --bebidas (una hoja por bebida en el laboratorio).
 const opcion = (nombre) => process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split('=')[1] ?? null;
 const bebida = opcion('bebida');
+const tema = opcion('tema');
 const BEBIDAS = ['americano', 'espresso', 'cappuccino', 'latte', 'mocha', 'caramelMacchiato', 'coldBrew', 'frappe', 'bubbleTea', 'matcha', 'chai', 'chocolate'];
 
 await rm(perfiles, { recursive: true, force: true }).catch(() => {});
@@ -88,7 +89,7 @@ if (process.argv.includes('--bebidas')) {
 for (const [ancho, alto] of tamanos) {
   for (const [nombre, consulta] of estados) {
     const archivo = join(carpeta, `${prefijo}-${ancho}-${nombre}.png`);
-    const app = `${base}?prueba=1&quieto=1&${consulta}${bebida ? `&bebida=${bebida}` : ''}`;
+    const app = `${base}?prueba=1&quieto=1&${consulta}${bebida ? `&bebida=${bebida}` : ''}${tema ? `&tema=${tema}` : ''}`;
     // Anchos de celular: la app va dentro de un marco, porque la ventana no puede ser tan angosta.
     const celular = ancho < 600;
     const url = celular ? `${base}herramientas/marco.html?ancho=${ancho}&alto=${alto}&url=${encodeURIComponent(app)}` : app;

@@ -2,6 +2,8 @@
 import { t } from '../textos.js';
 import { AJUSTES_INICIALES } from '../estado.js';
 import { permisoAvisos } from './avisos.js';
+import { ORDEN_TEMAS, cargarFuentes } from '../temas.js';
+import { formatoReloj, MINUTO } from '../util/tiempo.js';
 
 const CAMPOS_TIEMPO = [
   { llave: 'minutos.pequena', etiqueta: 'ajustes.tazaPequena', min: 5, max: 90, unidad: 'ajustes.unidadMinutos' },
@@ -26,7 +28,7 @@ const interruptor = (llave, etiqueta) => `
     <span>${t(etiqueta)}</span>
   </label>`;
 
-export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita, pedirPermiso }) {
+export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita, pedirPermiso, alElegirTema }) {
   const dialogo = document.createElement('dialog');
   dialogo.className = 'dialogo dialogo-ajustes';
   dialogo.setAttribute('aria-labelledby', 'titulo-ajustes');
@@ -70,9 +72,16 @@ export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita,
       </section>
       <section class="grupo-ajustes" aria-labelledby="ajustes-tema">
         <h3 id="ajustes-tema">${t('ajustes.tema')}</h3>
-        <div class="tema-actual">
-          <span class="tema-muestra" aria-hidden="true"></span>
-          <span><strong>${t('temas.nocturna.nombre')}</strong><span class="tema-frase">${t('temas.nocturna.frase')}</span></span>
+        <div class="selector-temas" role="radiogroup" aria-labelledby="ajustes-tema">
+          ${ORDEN_TEMAS.map((tema) => `
+            <button type="button" role="radio" class="vista-tema" data-tema-opcion="${tema}" aria-checked="false">
+              <span class="vista-escena" data-vista="${tema}" aria-hidden="true">
+                <span class="vista-reloj">${formatoReloj(25 * MINUTO)}</span>
+                <span class="vista-boton"></span>
+              </span>
+              <span class="vista-nombre">${t(`temas.${tema}.nombre`)}</span>
+              <span class="vista-frase">${t(`temas.${tema}.frase`)}</span>
+            </button>`).join('')}
         </div>
       </section>
     </div>`;
@@ -80,6 +89,33 @@ export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita,
 
   const entradas = [...dialogo.querySelectorAll('[data-llave]')];
   const notaPermiso = dialogo.querySelector('.nota-permiso');
+  const opcionesTema = [...dialogo.querySelectorAll('.vista-tema')];
+
+  function pintarTemas() {
+    const actual = datos().ajustes.tema;
+    opcionesTema.forEach((boton) => {
+      const elegido = boton.dataset.temaOpcion === actual;
+      boton.setAttribute('aria-checked', String(elegido));
+      boton.tabIndex = elegido ? 0 : -1;
+    });
+  }
+
+  // El tema se aplica al instante, también al moverse con las flechas (grupo de radio).
+  opcionesTema.forEach((boton, i) => {
+    boton.addEventListener('click', () => {
+      alElegirTema(boton.dataset.temaOpcion);
+      pintarTemas();
+    });
+    boton.addEventListener('keydown', (evento) => {
+      const paso = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[evento.key];
+      if (!paso) return;
+      evento.preventDefault();
+      const siguiente = opcionesTema[(i + paso + opcionesTema.length) % opcionesTema.length];
+      alElegirTema(siguiente.dataset.temaOpcion);
+      pintarTemas();
+      siguiente.focus();
+    });
+  });
 
   function pintarPermiso() {
     const permiso = permisoAvisos();
@@ -98,6 +134,7 @@ export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita,
     });
     dialogo.querySelector('.nota-en-curso').hidden = !enCurso();
     pintarPermiso();
+    pintarTemas();
   }
 
   entradas.forEach((entrada) => {
@@ -144,6 +181,8 @@ export function montarAjustes(app, { datos, enCurso, alCambiar, probarCampanita,
   return {
     abrir(boton) {
       origen = boton;
+      // Las vistas previas usan la letra de cada tema.
+      ORDEN_TEMAS.forEach(cargarFuentes);
       llenar();
       dialogo.showModal();
     },

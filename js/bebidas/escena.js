@@ -38,7 +38,7 @@ function voluta(i) {
     { x: 62, dur: 6.9, retraso: -4.2, deriva: -8 },
   ][i];
   return `<div class="voluta" style="--x:${ajustes.x}%;--dur:${ajustes.dur}s;--retraso:${ajustes.retraso}s;--deriva:${ajustes.deriva}%">
-    <svg viewBox="0 0 40 160" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.3" stop-color="#FFFFFF" stop-opacity="0.7"/><stop offset="0.75" stop-color="#FFFFFF" stop-opacity="0.25"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>
+    <svg viewBox="0 0 40 160" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color:var(--vapor,#FFFFFF);stop-opacity:0"/><stop offset="0.3" style="stop-color:var(--vapor,#FFFFFF);stop-opacity:0.7"/><stop offset="0.75" style="stop-color:var(--vapor,#FFFFFF);stop-opacity:0.25"/><stop offset="1" style="stop-color:var(--vapor,#FFFFFF);stop-opacity:0"/></linearGradient></defs>
     <path d="${formas[i]}" fill="none" stroke="url(#${id})" stroke-width="7" stroke-linecap="round"/></svg></div>`;
 }
 
@@ -64,6 +64,7 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
   let claveMaquinas = '';
   let calorMostrado = -1;
   let pausada = false;
+  let conCarita = false;
 
   const intervaloSorbo = () => (40000 + Math.random() * 50000) / (factor > 1 ? 6 : 1);
 
@@ -102,7 +103,7 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
 
   // Muestra una bebida (o la misma con otro tamaño). La anterior se desvanece con el mismo nivel.
   function mostrar(bebida, escala) {
-    const render = crearBebida(bebida, { escala, movimiento, semilla: semillaDeTexto(bebida.id) % 1000 });
+    const render = crearBebida(bebida, { escala, movimiento, semilla: semillaDeTexto(bebida.id) % 1000, carita: conCarita });
     // Solo hay fundido cuando una bebida reemplaza a otra; la primera aparece de inmediato.
     const svg = crearCapaSvg(actual ? 'bebida-svg entrando' : 'bebida-svg');
     svg.innerHTML = render.markup;
@@ -228,6 +229,11 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
     mostrar,
     actualizar,
     pausar,
+    // Cambio de tema: nueva luz y, en kawaii, carita. La bebida se vuelve a armar con el mismo nivel.
+    cambiarTema({ carita = false } = {}) {
+      conCarita = carita;
+      if (actual) mostrar(actual.bebida, actual.escala);
+    },
     // ¿Hay algo animándose aunque el temporizador esté quieto?
     animando: () => Boolean(transicion || sorbo),
     sorbo() {

@@ -71,10 +71,18 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 | Retro de cafetería | crema #F7ECD2, mostaza #E2A72E, cereza #C62F3B, verde azulado #227C78, chocolate #2E1E17 | Yellowtail + Josefin Sans | damero en perspectiva, pared a franjas, neón |
 | Kraft natural | kraft #C9A77C, kraft claro #E2CDA6, café #4E3423, salvia #52664A, espresso #2A1C14 | Jost + Caveat | papel con fibras, hojas y granos en línea |
 
+## Cómo funcionan los temas
+- `js/temas.js` registra cada tema: fuentes de Google (se cargan al elegirlo; las del nocturno vienen en index.html), luz de la escena (`fijarLuz`), si lleva carita, color del navegador y su fondo (`js/fondos/*.js`, que devuelven `detener()`).
+- `css/temas/*.css` redefine variables bajo `.app[data-tema='…']`: colores, `--fuente-marca`, `--fuente-display` (reloj), `--fuente-titulos`, `--fuente-ui`, `--fuente-mano`, `--ancho-cifra`, `--vapor`, `--maquina-*`, y ajusta controles. También define su miniatura `.vista-escena[data-vista='…']`.
+- Al cambiar de tema se rearman el fondo, la bebida (misma luz nueva y nivel) y las miniaturas de la carta.
+- Los tintes sutiles de la base usan `color-mix(... var(--texto) N%, transparent)` para verse en temas claros y oscuros.
+- `herramientas/contraste.mjs` revisa los pares de color de cada tema contra AA. Si agregas un tema, agrega sus pares.
+- Añadir un tema: entrada en `TEMAS` y `ORDEN_TEMAS`, archivo `css/temas/<id>.css`, fondo en `js/fondos/<id>.js`, textos en `textos.temas` y sus pares en `contraste.mjs`.
+
 ## Fases
 - [x] **Fase 1** (2026-11-04): estructura, temporizador completo, tamaños, ciclo con recarga, ajustes básicos, Cappuccino terminado y tema Cafetería nocturna lo-fi. Incluye campanita, notificación, favicon que se vacía y modo de prueba. Recarga del Cappuccino: la cafetera sirve el espresso (hasta 30 %) y la jarrita la leche; el corazón se forma al final.
 - [x] **Fase 2** (2026-11-05, rama `fase-2-bebidas`): las otras 11 bebidas y la carta. La carta (`js/ui/carta.js`) reemplazó a la ventanita de tamaños: elige bebida y tamaño en un solo lugar; las miniaturas usan el mismo renderizador, quietas.
-- [ ] **Fase 3**: los otros 3 temas y su selector con vista previa.
+- [x] **Fase 3** (2026-11-05, rama `fase-3-temas`): Pastel kawaii (carita en la bebida), Retro de cafetería (neón, mostrador, damero) y Kraft natural (papel con fibras, hojas y granos), con selector de vista previa en Ajustes. El tema se aplica al instante y se recuerda.
 - [ ] **Fase 4**: sonidos ambientales, tareas, estadísticas con racha y ventana flotante.
 - [ ] **Fase 5**: responsive, accesibilidad, rendimiento, README, service worker mínimo para avisos en Android y preparación para publicar.
 
@@ -88,7 +96,8 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - `servidor.mjs`: servidor local sin dependencias y sin caché (puerto 4173).
 - `laboratorio.html?bebida=cappuccino&estados=foco:1,foco:0.5,corto:0.6&quieto=1`: una bebida en grande en varios estados. Úsalo para pulir cada bebida antes de pasar a la siguiente.
 - `capturas.mjs`: capturas con Edge sin ventana. Los anchos de celular se toman dentro de `marco.html`, porque en Windows la ventana no baja de ~500 px. `--bebida=latte` elige la bebida de las capturas de la app; `--bebidas` agrega una hoja por bebida (100 %, 50 %, 0 % y descanso).
-- Parámetros de prueba: `?prueba=1&quieto=1&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas).
+- Parámetros de prueba: `?prueba=1&quieto=1&tema=retro&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas). `capturas.mjs` acepta `--tema=`.
+- `contraste.mjs`: contraste AA de cada tema.
 - El panel del navegador de Claude suele estar oculto: ahí no corren los cuadros de animación ni las transiciones. El pulso del worker repinta una vez por segundo cuando la página está visible pero sin cuadros.
 
 ## Notas
