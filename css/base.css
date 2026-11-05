@@ -11,6 +11,7 @@ button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 svg { display: block; }
+[hidden] { display: none !important; }
 
 .app {
   /* Valores por defecto; cada tema los redefine. */
@@ -73,11 +74,14 @@ svg { display: block; }
 .barra { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 6px 0; }
 .marca { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .marca-nombre { font-family: var(--fuente-marca, var(--fuente-display)); font-weight: 400; font-size: clamp(1.35rem, 2.6vw, 1.7rem); letter-spacing: 0.01em; line-height: 1; white-space: nowrap; }
-.racha { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px 0 10px; border-radius: 999px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.racha { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px 0 10px; border-radius: 999px; font-weight: 700; font-variant-numeric: tabular-nums; transition: background-color 0.2s, border-color 0.2s; }
+.racha:hover { background: var(--vidrio-fuerte); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
 .racha-icono { color: var(--acento); width: 22px; height: 22px; }
 .racha-icono svg { width: 100%; height: 100%; }
 .barra-iconos { display: flex; gap: 10px; }
-.boton-icono { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
+.boton-icono { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
+/* Punto de color: hay sonidos de ambiente encendidos. */
+.boton-icono[data-sonando='true']::after { content: ''; position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--acento); box-shadow: 0 0 0 2px var(--fondo); }
 .boton-icono svg { width: 22px; height: 22px; }
 .boton-icono:hover { background: var(--vidrio-fuerte); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
 
@@ -144,7 +148,25 @@ svg { display: block; }
 .dos-puntos { display: inline-block; width: 0.32em; text-align: center; opacity: 0.6; transform: translateY(-0.06em); }
 .estado-linea { margin-top: 6px; color: var(--texto-suave); font-size: 0.98rem; min-height: 1.45em; text-align: center; }
 
-.controles { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+/* Tarea en curso: debajo del estado; al tocarla se abre la lista. */
+.tarea-activa {
+  display: inline-flex; align-items: center; gap: 8px;
+  max-width: min(calc(100vw - 40px), 460px); min-height: 34px; margin-top: 8px; padding: 4px 14px 4px 10px;
+  border: 1px solid var(--vidrio-borde); border-radius: 999px;
+  background: color-mix(in srgb, var(--texto) 6%, transparent); color: var(--texto); font-size: 0.92rem;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.tarea-activa:hover { background: var(--vidrio); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
+.tarea-activa-icono { flex: none; width: 18px; height: 18px; color: var(--acento); }
+.tarea-activa-icono svg { width: 100%; height: 100%; }
+.tarea-activa-texto { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Con la línea de la tarea, la escena cede su alto para que nada se salga de la pantalla. */
+.app.con-tarea { --alto-escena: clamp(220px, calc(100dvh - 467px), 600px); }
+
+.controles { position: relative; display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+/* La ventana flotante queda a un lado, para que Empezar siga centrado bajo la bebida. */
+.boton-flotante-abrir { position: absolute; left: calc(100% + 22px); top: 50%; transform: translateY(-50%); }
+.boton-flotante-abrir[aria-pressed='true'] { color: var(--acento); border-color: color-mix(in srgb, var(--acento) 60%, transparent); }
 .boton-redondo { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
 .boton-redondo svg { width: 22px; height: 22px; }
 .boton-redondo:hover { background: var(--vidrio-fuerte); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
@@ -296,16 +318,23 @@ input[type='range'] { flex: 1; accent-color: var(--acento); min-height: 28px; }
 /* ---------- Pantallas angostas ---------- */
 @media (max-width: 600px) {
   .app { --alto-escena: clamp(230px, calc(100dvh - 400px), 470px); }
+  .app.con-tarea { --alto-escena: clamp(210px, calc(100dvh - 442px), 470px); }
+  .app.modo-prueba.con-tarea { --alto-escena: clamp(190px, calc(100dvh - 500px), 470px); }
   .marca { gap: 10px; }
+  .marca-nombre { font-size: 1.25rem; }
   .racha { height: 36px; padding: 0 12px 0 8px; }
-  .boton-icono { width: 42px; height: 42px; }
+  .barra { gap: 8px; }
+  .barra-iconos { gap: 6px; }
+  .boton-icono { width: 40px; height: 40px; border-radius: 12px; }
+  .boton-icono[data-sonando='true']::after { top: 6px; right: 6px; }
   .bloques { margin-top: 12px; }
   .bloque { padding: 0 12px 0 14px; gap: 7px; }
   .bloque-nombre { display: none; }
   .bloque-breve { display: inline; }
-  .controles { gap: 14px; margin-top: 14px; }
-  .boton-principal { min-width: 170px; height: 60px; padding: 0 26px 0 22px; }
-  .boton-redondo { width: 50px; height: 50px; }
+  .controles { gap: 12px; margin-top: 14px; }
+  .boton-principal { min-width: 160px; height: 60px; padding: 0 24px 0 20px; }
+  .boton-redondo { width: 48px; height: 48px; }
+  .boton-flotante-abrir { position: static; transform: none; }
   .pie { justify-content: center; }
   .opciones-tamano { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .carta-tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -323,8 +352,21 @@ input[type='range'] { flex: 1; accent-color: var(--acento); min-height: 28px; }
   .prueba-botones .boton-suave { min-height: 30px; }
 }
 
+/* Celulares de 360 px: la barra entra completa. */
+@media (max-width: 380px) {
+  .marca { gap: 8px; }
+  .marca-nombre { font-size: 1.1rem; }
+  .racha { padding: 0 10px 0 7px; gap: 4px; }
+  .barra-iconos { gap: 4px; }
+  .boton-icono { width: 36px; height: 36px; }
+  .boton-icono svg { width: 20px; height: 20px; }
+  .controles { gap: 8px; }
+  .boton-principal { min-width: 148px; }
+}
+
 @media (max-height: 640px) and (min-width: 601px) {
   .app { --alto-escena: clamp(200px, calc(100dvh - 380px), 520px); }
+  .app.con-tarea { --alto-escena: clamp(190px, calc(100dvh - 422px), 520px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

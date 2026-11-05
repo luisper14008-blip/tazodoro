@@ -17,6 +17,12 @@ export const AJUSTES_INICIALES = {
   avisos: true,
   volumen: { campanita: 0.7 },
   tema: 'nocturna',
+  sonidos: {
+    murmullo: { activo: false, volumen: 0.5 },
+    lluvia: { activo: false, volumen: 0.55 },
+    cafetera: { activo: false, volumen: 0.45 },
+    silencio: false,
+  },
 };
 
 export function datosIniciales() {
@@ -27,6 +33,7 @@ export function datosIniciales() {
     temporizador: null,
     registros: [],
     tareas: [],
+    tareaActiva: null,
   };
 }
 

@@ -10,10 +10,16 @@ import { montarControles } from './ui/controles.js';
 import { montarCarta } from './ui/carta.js';
 import { montarAjustes } from './ui/ajustes.js';
 import { confirmar } from './ui/dialogo.js';
-import { montarPrueba, aplicarParametros } from './ui/prueba.js';
+import { montarPrueba, aplicarParametros, datosDemo, panelDePrueba } from './ui/prueba.js';
 import { actualizarTitulo, actualizarFavicon, mostrarMensaje, anunciar, pedirPermisoAvisos, notificar } from './ui/avisos.js';
-import { desbloquearAudio } from './audio/motor.js';
+import { desbloquearAudio, silenciar } from './audio/motor.js';
 import { tocarCampanita } from './audio/campanita.js';
+import { crearAmbientes, AMBIENTES } from './audio/ambientes.js';
+import { montarSonidos } from './ui/sonidos.js';
+import { montarTareas } from './ui/tareas.js';
+import { montarEstadisticas } from './ui/estadisticas.js';
+import { montarFlotante } from './ui/flotante.js';
+import { tareaActiva } from './tareas.js';
 import { aplicarTema, TEMAS } from './temas.js';
 import { nombreBebida, nombrePedido } from './nombres.js';
 
@@ -49,6 +55,7 @@ function cambiarTema(id) {
   tema = aplicarTema(id, { raiz, fondo: capaFondo, movimiento });
   escena.cambiarTema({ carita: tema.carita });
   carta.invalidar();
+  flotante.actualizar();
   acento = '';
   alinearMesa();
   pintar();
@@ -66,6 +73,7 @@ function mostrarBebida() {
   if (clave === bebidaMostrada) return;
   bebidaMostrada = clave;
   escena.mostrar(obtenerBebida(bebida), escala);
+  flotante.actualizar();
 }
 
 // ---------- Interfaz ----------
@@ -82,6 +90,9 @@ const controles = montarControles(raiz, {
   irA: cambiarBloque,
   pedido: (boton) => carta.abrir(boton),
   ajustes: (boton) => ajustes.abrir(boton),
+  sonidos: (boton) => sonidos.abrir(boton),
+  tareas: (boton) => tareas.abrir(boton),
+  estadisticas: (boton) => estadisticas.abrir(boton),
 });
 
 const carta = montarCarta(raiz, {
@@ -127,6 +138,92 @@ const ajustes = montarAjustes(raiz, {
   alElegirTema: cambiarTema,
 });
 
+// ---------- Sonidos de ambiente ----------
+// Solo una pestaña los toca: la que tiene el candado. Las demás guardan los ajustes y esa los aplica.
+const ambientes = crearAmbientes();
+let tocaAmbientes = false;
+let pidioAmbientes = false;
+silenciar(app.datos.ajustes.sonidos.silencio);
+
+function aplicarSonidos() {
+  const ajustesSonido = app.datos.ajustes.sonidos;
+  silenciar(ajustesSonido.silencio);
+  if (tocaAmbientes) AMBIENTES.forEach((id) => ambientes.fijar(id, ajustesSonido[id]));
+}
+
+function tomarAmbientes() {
+  if (pidioAmbientes) return;
+  pidioAmbientes = true;
+  const empezar = () => {
+    tocaAmbientes = true;
+    aplicarSonidos();
+  };
+  if (!navigator.locks?.request) {
+    empezar();
+    return;
+  }
+  navigator.locks.request('tazodoro-ambientes', () => {
+    empezar();
+    return new Promise(() => {}); // Se suelta al cerrar la pestaña.
+  }).catch(() => {});
+}
+
+// El navegador solo deja sonar después de un gesto: con cada uno se despierta (o reanuda) el audio.
+function gesto() {
+  desbloquearAudio();
+  tomarAmbientes();
+}
+['pointerdown', 'pointerup', 'keydown'].forEach((tipo) => window.addEventListener(tipo, gesto, { capture: true, passive: true }));
+
+const sonidos = montarSonidos(raiz, {
+  datos: () => app.datos,
+  alCambiar(id) {
+    app.guardar();
+    gesto();
+    if (id === 'silencio') silenciar(app.datos.ajustes.sonidos.silencio);
+    else if (tocaAmbientes) ambientes.fijar(id, app.datos.ajustes.sonidos[id]);
+    pintar();
+  },
+});
+
+// ---------- Tareas y estadísticas ----------
+const tareas = montarTareas(raiz, {
+  datos: () => app.datos,
+  alCambiar() {
+    app.guardar();
+    pintar();
+  },
+});
+
+const estadisticas = montarEstadisticas(raiz, {
+  datos: () => app.datos,
+  carita: () => tema.carita,
+  alBorrar() {
+    app.datos.registros = [];
+    app.datos.tareas = [];
+    app.datos.tareaActiva = null;
+    app.guardar();
+    anunciar(t('estadisticas.borrado'));
+    pintar();
+  },
+});
+
+// ---------- Ventana flotante ----------
+function vistaFlotante() {
+  const ahora = Date.now();
+  const e = temporizador.estado();
+  return {
+    estado: { nivel: temporizador.nivel(ahora), bloque: e.bloque, fase: e.fase },
+    reloj: formatoReloj(temporizador.restante(ahora) * FACTOR),
+    texto: textoPrincipal(e),
+    bebida: obtenerBebida(app.datos.seleccion.bebida),
+    escala: escalaPorMinutos(minutosFoco()),
+    tema: tema.clave,
+    carita: tema.carita,
+  };
+}
+const flotante = montarFlotante(raiz.querySelector('[data-accion="flotante"]'), { vista: vistaFlotante, alternar, movimiento, factor: FACTOR, avisar: mostrarMensaje });
+
 const prueba = modoPrueba ? montarPrueba(raiz, { temporizador, escena, alCambiar: () => latido() }) : null;
 raiz.classList.toggle('modo-prueba', modoPrueba);
 raiz.classList.toggle('sin-transiciones', modoPrueba && new URLSearchParams(location.search).get('quieto') === '1');
@@ -170,6 +267,8 @@ function alCambiarTemporizador(motivo) {
   if (motivo === 'empezar') anunciar(t('anuncios.empieza', { bloque: t(`bloques.${e.bloque}`).toLocaleLowerCase('es') }));
   if (motivo === 'pausar') anunciar(t('anuncios.pausa'));
   carta.pintar();
+  tareas.pintar();
+  estadisticas.pintar();
   pintar();
   sincronizarLatido();
   latido();
@@ -211,6 +310,8 @@ function vista(ahora = Date.now()) {
   else if (e.bloque === 'corto') estadoTexto = e.fase === 'listo' ? t('estado.cortoListo') : t('estado.corto', { bebida: nombreEnFrase() });
   else estadoTexto = e.fase === 'listo' ? t('estado.largoListo') : t('estado.largo');
   const dias = racha(app.datos.registros, ahora);
+  const tarea = tareaActiva(app.datos);
+  const ajustesSonido = app.datos.ajustes.sonidos;
   return {
     bloque: e.bloque,
     fase: e.fase,
@@ -219,11 +320,21 @@ function vista(ahora = Date.now()) {
     racha: dias,
     rachaTexto: dias === 0 ? t('barra.rachaCero') : dias === 1 ? t('barra.rachaUno') : t('barra.racha', { n: dias }),
     reloj: formatoReloj(temporizador.restante(ahora) * FACTOR),
-    principalTexto: corriendo ? t('controles.pausar') : e.fase === 'pausado' ? t('controles.seguir') : descanso ? t('controles.empezarDescanso') : t('controles.empezar'),
+    principalTexto: textoPrincipal(e),
     saltarTexto: descanso ? t('controles.saltarDescanso') : t('controles.saltar'),
     pedidoTexto: nombrePedido(bebida, tamano, app.datos.ajustes.minutos.personalizada),
     estadoTexto,
+    tareaTexto: tarea ? t('tareas.enCurso', { tarea: tarea.texto, hechas: tarea.hechas, estimadas: tarea.estimadas }) : '',
+    silencio: ajustesSonido.silencio,
+    sonando: AMBIENTES.some((id) => ajustesSonido[id].activo),
+    textoSonidos: t(ajustesSonido.silencio ? 'barra.musicaSilencio' : 'barra.musica'),
   };
+}
+
+function textoPrincipal(e) {
+  if (e.fase === 'corriendo') return t('controles.pausar');
+  if (e.fase === 'pausado') return t('controles.seguir');
+  return e.bloque === 'foco' ? t('controles.empezar') : t('controles.empezarDescanso');
 }
 
 function pintar() {
@@ -322,6 +433,9 @@ document.addEventListener('visibilitychange', () => {
 
 escucharOtrasPestanas((nuevos) => {
   app.datos = nuevos;
+  aplicarSonidos();
+  tareas.pintar();
+  estadisticas.pintar();
   temporizador.programar();
   escena.pausar(temporizador.estado().fase === 'pausado');
   pintar();
@@ -351,8 +465,17 @@ if (modoPrueba) {
       app.guardar();
     },
     elegirTema: cambiarTema,
+    sembrarDemo() {
+      Object.assign(app.datos, datosDemo());
+      app.guardar();
+    },
   });
 }
 alCambiarTemporizador('inicio');
 alinearMesa();
 raiz.classList.add('lista');
+if (modoPrueba && panelDePrueba()) {
+  const paneles = { tareas, estadisticas, sonidos, carta, ajustes };
+  const botones = { carta: '.pedido', ajustes: '[data-accion="ajustes"]', tareas: '[data-accion="tareas"]', estadisticas: '[data-accion="estadisticas"]', sonidos: '[data-accion="sonidos"]' };
+  paneles[panelDePrueba()]?.abrir(raiz.querySelector(botones[panelDePrueba()]));
+}

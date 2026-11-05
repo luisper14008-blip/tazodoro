@@ -13,8 +13,8 @@ const DURACION_SALTO = 650;
 
 const pct = (valor, total) => `${((valor / total) * 100).toFixed(3)}%`;
 
-function crearCapaSvg(clase) {
-  const svg = document.createElementNS(NS, 'svg');
+function crearCapaSvg(clase, doc = document) {
+  const svg = doc.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', VIEWBOX);
   svg.setAttribute('class', `capa ${clase}`);
   svg.setAttribute('aria-hidden', 'true');
@@ -42,16 +42,18 @@ function voluta(i) {
     <path d="${formas[i]}" fill="none" stroke="url(#${id})" stroke-width="7" stroke-linecap="round"/></svg></div>`;
 }
 
-export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) {
+// ventana: la ventana donde vive la escena (la principal o la ventana flotante), para usar sus cuadros.
+export function crearEscena(contenedor, { movimiento = true, factor = 1, ventana = window } = {}) {
+  const doc = contenedor.ownerDocument;
   contenedor.classList.add('escena');
   contenedor.innerHTML = '';
-  const capaMaquina = crearCapaSvg('capa-maquina');
-  const capaBebidas = document.createElement('div');
+  const capaMaquina = crearCapaSvg('capa-maquina', doc);
+  const capaBebidas = doc.createElement('div');
   capaBebidas.className = 'capa capa-bebidas';
-  const capaVapor = document.createElement('div');
+  const capaVapor = doc.createElement('div');
   capaVapor.className = 'capa capa-vapor';
   capaVapor.setAttribute('aria-hidden', 'true');
-  const capaJarra = crearCapaSvg('capa-jarra');
+  const capaJarra = crearCapaSvg('capa-jarra', doc);
   contenedor.append(capaMaquina, capaBebidas, capaVapor, capaJarra);
 
   let actual = null;
@@ -105,7 +107,7 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
   function mostrar(bebida, escala) {
     const render = crearBebida(bebida, { escala, movimiento, semilla: semillaDeTexto(bebida.id) % 1000, carita: conCarita });
     // Solo hay fundido cuando una bebida reemplaza a otra; la primera aparece de inmediato.
-    const svg = crearCapaSvg(actual ? 'bebida-svg entrando' : 'bebida-svg');
+    const svg = crearCapaSvg(actual ? 'bebida-svg entrando' : 'bebida-svg', doc);
     svg.innerHTML = render.markup;
     capaBebidas.append(svg);
     render.montar(svg);
@@ -116,7 +118,7 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
       viejo.classList.add('saliendo');
       setTimeout(() => viejo.remove(), 700);
     }
-    requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.remove('entrando')));
+    ventana.requestAnimationFrame(() => ventana.requestAnimationFrame(() => svg.classList.remove('entrando')));
     actual = { bebida, escala, render, svg };
     construirMaquinas();
     construirVapor();
@@ -229,10 +231,11 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
     mostrar,
     actualizar,
     pausar,
-    // Cambio de tema: nueva luz y, en kawaii, carita. La bebida se vuelve a armar con el mismo nivel.
-    cambiarTema({ carita = false } = {}) {
+    // Cambio de tema: nueva luz y, en kawaii, carita. La bebida se vuelve a armar con el mismo nivel
+    // (rearmar: false cuando quien llama va a mostrar otra bebida enseguida).
+    cambiarTema({ carita = false, rearmar = true } = {}) {
       conCarita = carita;
-      if (actual) mostrar(actual.bebida, actual.escala);
+      if (actual && rearmar) mostrar(actual.bebida, actual.escala);
     },
     // ¿Hay algo animándose aunque el temporizador esté quieto?
     animando: () => Boolean(transicion || sorbo),

@@ -9,7 +9,7 @@ export function audio() {
     if (!Contexto) return null;
     contexto = new Contexto();
     salida = contexto.createGain();
-    salida.gain.value = 1;
+    salida.gain.value = silencio ? 0 : 1;
     salida.connect(contexto.destination);
   }
   if (contexto.state === 'suspended') contexto.resume().catch(() => {});
@@ -24,3 +24,15 @@ export function desbloquearAudio() {
 export function audioListo() {
   return Boolean(contexto && contexto.state === 'running');
 }
+
+// Silencio general: apaga ambientes y campanita sin perder sus volúmenes.
+let silencio = false;
+export function silenciar(valor) {
+  silencio = valor;
+  if (!contexto) return;
+  const ahora = contexto.currentTime;
+  salida.gain.cancelScheduledValues(ahora);
+  salida.gain.setValueAtTime(salida.gain.value, ahora);
+  salida.gain.linearRampToValueAtTime(valor ? 0 : 1, ahora + 0.25);
+}
+export const silenciado = () => silencio;

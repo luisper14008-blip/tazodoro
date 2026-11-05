@@ -1,6 +1,7 @@
 // Todos los textos de la interfaz viven aquí.
 // Para traducir Tazodoro: copia este archivo, cambia los valores y el idioma.
 // Las llaves {asi} se reemplazan con valores al mostrarse.
+// Plurales: { uno, otros } elige según la variable n (o la que diga "cuenta").
 
 export const idioma = 'es';
 
@@ -15,6 +16,7 @@ export const textos = {
     rachaUno: '1 día con al menos una taza',
     rachaCero: 'Termina una taza para empezar tu racha',
     musica: 'Sonidos de ambiente',
+    musicaSilencio: 'Sonidos de ambiente (silenciados)',
     tareas: 'Tareas',
     estadisticas: 'Estadísticas',
     ajustes: 'Ajustes',
@@ -165,6 +167,71 @@ export const textos = {
     sAccion: 'salta',
   },
 
+  sonidos: {
+    titulo: 'Sonidos de ambiente',
+    ayuda: 'Se generan en el navegador. Suenan aunque cambies de pestaña.',
+    murmullo: 'Murmullo de cafetería',
+    lluvia: 'Lluvia',
+    cafetera: 'Cafetera',
+    volumen: 'Volumen de {sonido}',
+    silencio: 'Silenciar todo',
+    silenciado: 'Sonidos silenciados',
+    cerrar: 'Cerrar',
+  },
+
+  tareas: {
+    titulo: 'Tareas',
+    nueva: 'Nueva tarea',
+    ejemplo: 'Por ejemplo: escribir el informe',
+    estimadas: 'Tazas estimadas',
+    agregar: 'Agregar',
+    vacio: 'Escribe lo que quieres terminar hoy y cuántas tazas crees que te tomará.',
+    resumen: { cuenta: 'total', uno: '{hechas} de 1 tarea hecha', otros: '{hechas} de {total} tareas hechas' },
+    tazas: { cuenta: 'estimadas', uno: '{hechas} de 1 taza', otros: '{hechas} de {estimadas} tazas' },
+    completar: 'Marcar como hecha: {tarea}',
+    activar: 'Trabajar en esta tarea',
+    activa: 'Tarea en curso',
+    editar: 'Editar: {tarea}',
+    guardar: 'Guardar',
+    cancelar: 'Cancelar',
+    borrar: 'Borrar: {tarea}',
+    mover: 'Mover: {tarea}. Usa las flechas arriba y abajo.',
+    movida: '{tarea} quedó en el lugar {n}.',
+    enCurso: { cuenta: 'estimadas', uno: '{tarea}, {hechas} de 1 taza', otros: '{tarea}, {hechas} de {estimadas} tazas' },
+    enCursoPrefijo: 'Tarea en curso: ',
+    abrir: 'Ver tus tareas',
+    cerrar: 'Cerrar',
+  },
+
+  estadisticas: {
+    titulo: 'Estadísticas',
+    tazasHoy: 'Tazas de hoy',
+    minutosHoy: 'Minutos de foco hoy',
+    racha: 'Días seguidos',
+    semana: 'Minutos de foco, últimos 7 días',
+    grafico: 'Minutos de foco por día: {datos}.',
+    semanaVacia: 'Aquí aparecerán tus minutos de foco.',
+    dia: '{dia}: {n} min',
+    favorita: 'Tu bebida favorita',
+    favoritaTexto: { uno: '{bebida}, con 1 taza', otros: '{bebida}, con {n} tazas' },
+    sinFavorita: 'Termina una taza para ver tu favorita.',
+    total: { uno: '1 taza en total', otros: '{n} tazas en total' },
+    exportar: 'Descargar mis datos',
+    borrar: 'Borrar historial y tareas',
+    borrarTitulo: '¿Borrar historial y tareas?',
+    borrarTexto: 'Se borran tus tazas, minutos, racha y tareas. Tus ajustes y tu tema se quedan. No se puede deshacer.',
+    borrarSi: 'Borrar',
+    borrarNo: 'Conservar',
+    borrado: 'Historial y tareas borrados.',
+    cerrar: 'Cerrar',
+  },
+
+  flotante: {
+    abrir: 'Abrir ventana flotante',
+    titulo: 'Tazodoro flotante',
+    noDisponible: 'Este navegador no deja abrir la ventana flotante.',
+  },
+
   prueba: {
     titulo: 'Modo de prueba',
     velocidad: 'El tiempo corre 60 veces más rápido.',
@@ -198,7 +265,10 @@ export const textos = {
 
 // Busca un texto por ruta ("controles.empezar") y reemplaza {variables}.
 export function t(ruta, variables = {}) {
-  const valor = ruta.split('.').reduce((nodo, parte) => (nodo == null ? nodo : nodo[parte]), textos);
+  let valor = ruta.split('.').reduce((nodo, parte) => (nodo == null ? nodo : nodo[parte]), textos);
+  if (valor && typeof valor === 'object' && 'otros' in valor) {
+    valor = Number(variables[valor.cuenta ?? 'n']) === 1 ? valor.uno : valor.otros;
+  }
   if (typeof valor !== 'string') return valor ?? ruta;
   return rellenar(valor, variables);
 }

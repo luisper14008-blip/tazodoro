@@ -3,6 +3,7 @@
 import { MINUTO } from './util/tiempo.js';
 import { cargar, guardar, conCandado } from './estado.js';
 import { podar } from './registros.js';
+import { sumarTaza } from './tareas.js';
 
 const crearId = () => `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
@@ -145,9 +146,11 @@ export function crearTemporizador(app, { factor = 1, alCambiar = () => {}, alTer
           return;
         }
         const base = fresco.temporizador ?? terminado;
+        // La taza terminada se suma a la tarea en curso (si hay una).
+        const tarea = base.bloque === 'foco' ? sumarTaza(fresco) : null;
         fresco.registros = podar([
           ...fresco.registros,
-          registro(base, fresco, { completo: true, fin: base.finEn, minutos: (base.totalMs * factor) / MINUTO }),
+          registro(base, fresco, { completo: true, fin: base.finEn, minutos: (base.totalMs * factor) / MINUTO, tarea }),
         ]);
         const siguiente = siguienteDe(base, fresco);
         const auto = siguiente.bloque === 'foco' ? fresco.ajustes.autoTaza : fresco.ajustes.autoDescanso;

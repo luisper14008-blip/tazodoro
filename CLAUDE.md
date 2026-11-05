@@ -83,7 +83,7 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - [x] **Fase 1** (2026-11-04): estructura, temporizador completo, tamaños, ciclo con recarga, ajustes básicos, Cappuccino terminado y tema Cafetería nocturna lo-fi. Incluye campanita, notificación, favicon que se vacía y modo de prueba. Recarga del Cappuccino: la cafetera sirve el espresso (hasta 30 %) y la jarrita la leche; el corazón se forma al final.
 - [x] **Fase 2** (2026-11-05, rama `fase-2-bebidas`): las otras 11 bebidas y la carta. La carta (`js/ui/carta.js`) reemplazó a la ventanita de tamaños: elige bebida y tamaño en un solo lugar; las miniaturas usan el mismo renderizador, quietas.
 - [x] **Fase 3** (2026-11-05, rama `fase-3-temas`): Pastel kawaii (carita en la bebida), Retro de cafetería (neón, mostrador, damero) y Kraft natural (papel con fibras, hojas y granos), con selector de vista previa en Ajustes. El tema se aplica al instante y se recuerda.
-- [ ] **Fase 4**: sonidos ambientales, tareas, estadísticas con racha y ventana flotante.
+- [x] **Fase 4** (2026-11-05, rama `fase-4-funciones`): sonidos de ambiente sintetizados (`js/audio/ambientes.js`; murmullo, lluvia y cafetera, con volumen y silencio general; solo la pestaña con el candado `tazodoro-ambientes` los toca; para usar grabaciones CC0, rutas en `FUENTES`), tareas en panel lateral (`js/tareas.js`, `js/ui/tareas.js`; la tarea en curso va bajo el reloj y cada taza terminada le suma), estadísticas (`js/estadisticas.js`, `js/ui/estadisticas.js`; la racha de la barra las abre; descargar y borrar datos) y ventana flotante (`js/ui/flotante.js`, Document PiP con la mesa del tema; si el navegador no puede, el botón se oculta con aviso). Estilos en `css/paneles.css`. Textos con plurales `{ uno, otros }`.
 - [ ] **Fase 5**: responsive, accesibilidad, rendimiento, README, service worker mínimo para avisos en Android y preparación para publicar.
 
 ## Cierre de cada fase
@@ -96,7 +96,7 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - `servidor.mjs`: servidor local sin dependencias y sin caché (puerto 4173).
 - `laboratorio.html?bebida=cappuccino&estados=foco:1,foco:0.5,corto:0.6&quieto=1`: una bebida en grande en varios estados. Úsalo para pulir cada bebida antes de pasar a la siguiente.
 - `capturas.mjs`: capturas con Edge sin ventana. Los anchos de celular se toman dentro de `marco.html`, porque en Windows la ventana no baja de ~500 px. `--bebida=latte` elige la bebida de las capturas de la app; `--bebidas` agrega una hoja por bebida (100 %, 50 %, 0 % y descanso).
-- Parámetros de prueba: `?prueba=1&quieto=1&tema=retro&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas). `capturas.mjs` acepta `--tema=`.
+- Parámetros de prueba: `?prueba=1&quieto=1&tema=retro&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas). `demo=1` carga tareas y una semana de historial de ejemplo; `panel=tareas|estadisticas|sonidos|carta|ajustes` abre ese panel. `capturas.mjs` acepta `--tema=`, `--demo` y `--paneles`.
 - `contraste.mjs`: contraste AA de cada tema.
 - El panel del navegador de Claude suele estar oculto: ahí no corren los cuadros de animación ni las transiciones. El pulso del worker repinta una vez por segundo cuando la página está visible pero sin cuadros.
 
@@ -104,4 +104,4 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - El proyecto está dentro de OneDrive: si git falla por archivos bloqueados, reintentar o pausar la sincronización.
 - No hay Firefox ni Safari en este equipo: el usuario revisa esos navegadores.
 - Git: identidad configurada solo en este repositorio (`git config user.name` / `user.email`). Cambiarla si el usuario prefiere otro nombre o su correo privado de GitHub antes de publicar.
-- Pendientes para fases siguientes: botones de música, tareas y estadísticas en la barra (fase 4); la racha se volverá botón que abre estadísticas (fase 4); service worker para avisos en Android (fase 5).
+- Pendientes para fases siguientes: probar la ventana flotante en Chrome/Edge reales (el navegador de Claude no la abre); ocultar los atajos de teclado en pantallas táctiles; service worker para avisos en Android (fase 5).

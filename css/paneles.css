@@ -1,0 +1,183 @@
+/* Paneles de la fase 4: sonidos de ambiente, tareas, estadísticas y ventana flotante.
+   Usan las mismas variables que el resto: cada tema los viste sin reglas propias. */
+
+/* ---------- Sonidos de ambiente ---------- */
+.dialogo.dialogo-sonidos { width: min(500px, calc(100vw - 24px)); }
+.lista-sonidos { display: grid; gap: 10px; }
+.fila-sonido {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(96px, 132px); align-items: center; gap: 12px;
+  padding: 8px 16px 8px 12px; border-radius: 16px;
+  border: 1px solid var(--vidrio-borde); background: color-mix(in srgb, var(--texto) 4%, transparent);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.fila-sonido input[type='range'] { width: 100%; }
+.fila-sonido:has([data-control='activo']:checked) { border-color: color-mix(in srgb, var(--acento) 55%, transparent); background: var(--activo); }
+.fila-sonido:has([data-control='activo']:not(:checked)) [data-control='volumen'] { opacity: 0.55; }
+.sonido-icono { flex: none; width: 24px; height: 24px; color: var(--texto-suave); transition: color 0.2s; }
+.sonido-icono svg { width: 100%; height: 100%; }
+.fila-sonido:has([data-control='activo']:checked) .sonido-icono { color: var(--acento); }
+.sonido-nombre { min-width: 0; }
+.silencio-general { padding: 0 2px; }
+
+/* ---------- Tareas: panel lateral ---------- */
+.dialogo.panel-lateral {
+  margin: 0 0 0 auto; width: min(440px, 100vw); max-width: 100%;
+  height: 100%; max-height: 100%;
+  border-radius: var(--radio-grande) 0 0 var(--radio-grande); border-right: 0;
+}
+.dialogo.panel-lateral[open] { animation: entra-panel 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes entra-panel { from { transform: translateX(32px); opacity: 0; } }
+.panel-lateral .dialogo-cuerpo { align-content: start; gap: 16px; }
+
+.nueva-tarea { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: end; gap: 10px; }
+.nueva-tarea .campo-ancho { grid-column: 1 / -1; }
+.nueva-tarea .boton-acento { justify-self: end; min-height: 44px; padding: 0 22px; }
+.entrada-texto {
+  width: 100%; min-height: 44px; padding: 0 12px; border-radius: 12px;
+  border: 1px solid var(--vidrio-borde); background: color-mix(in srgb, var(--fondo) 55%, transparent);
+}
+.entrada-texto::placeholder { color: var(--texto-suave); opacity: 1; }
+.entrada-texto:focus-visible { outline: none; border-color: var(--acento); box-shadow: 0 0 0 1px var(--acento); }
+
+.resumen-tareas:empty { display: none; }
+.lista-tareas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lista-tareas:empty { display: none; }
+.tarea {
+  position: relative; display: flex; align-items: center; gap: 2px;
+  padding: 2px 4px 2px 0; border-radius: 14px;
+  border: 1px solid var(--vidrio-borde); background: color-mix(in srgb, var(--texto) 4%, transparent);
+  transition: transform 0.22s ease, background-color 0.2s, border-color 0.2s;
+}
+.tarea.activa { border-color: color-mix(in srgb, var(--acento) 70%, transparent); background: var(--activo); }
+.tarea.arrastrando { z-index: 2; transition: background-color 0.2s; background: var(--vidrio-fuerte); box-shadow: var(--sombra-suave); }
+
+.asa-tarea {
+  flex: none; display: grid; place-items: center; width: 30px; height: 44px; padding: 0;
+  border: 0; border-radius: 10px; background: none; color: var(--texto-suave);
+  cursor: grab; touch-action: none;
+}
+.asa-tarea:active { cursor: grabbing; }
+.asa-tarea svg { width: 16px; height: 16px; }
+
+.marca-tarea { position: relative; flex: none; display: grid; place-items: center; width: 34px; height: 44px; cursor: pointer; }
+.marca-tarea input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.marca-caja {
+  display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px;
+  border: 2px solid color-mix(in srgb, var(--texto) 55%, transparent);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.marca-caja::after {
+  content: ''; width: 10px; height: 5px; margin-top: -3px;
+  border-left: 2.2px solid var(--acento-texto); border-bottom: 2.2px solid var(--acento-texto);
+  transform: rotate(-45deg) scale(0); transition: transform 0.15s ease;
+}
+.marca-tarea input:checked + .marca-caja { background: var(--acento); border-color: var(--acento); }
+.marca-tarea input:checked + .marca-caja::after { transform: rotate(-45deg) scale(1); }
+.marca-tarea input:focus-visible + .marca-caja { outline: 2px solid var(--foco); outline-offset: 2px; }
+
+.tarea-texto { flex: 1; min-width: 0; display: grid; gap: 1px; padding: 7px 4px; line-height: 1.3; overflow-wrap: anywhere; }
+.tarea-tazas { color: var(--texto-suave); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.tarea.completa .tarea-nombre { color: var(--texto-suave); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+
+.boton-mini {
+  flex: none; display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
+  border: 0; border-radius: 10px; background: none; color: var(--texto-suave);
+  transition: background-color 0.2s, color 0.2s;
+}
+.boton-mini svg { width: 19px; height: 19px; }
+.boton-mini:hover:not(:disabled) { background: color-mix(in srgb, var(--texto) 10%, transparent); color: var(--texto); }
+.boton-mini[aria-pressed='true'] { color: var(--acento); }
+.boton-mini:disabled { opacity: 0.35; }
+
+.tarea.editando { display: block; padding: 8px; }
+.editar-tarea { display: grid; grid-template-columns: 84px auto auto; justify-content: start; gap: 8px; }
+.editar-tarea .entrada-texto { grid-column: 1 / -1; }
+
+.tareas-vacio { display: grid; justify-items: center; gap: 12px; padding: 28px 18px 8px; text-align: center; color: var(--texto-suave); }
+.tareas-vacio p { max-width: 30ch; }
+.tareas-ilustracion { width: 78px; height: auto; }
+.tareas-ilustracion .papel { fill: color-mix(in srgb, var(--texto) 7%, transparent); stroke: color-mix(in srgb, var(--texto) 45%, transparent); stroke-width: 1.4; stroke-linejoin: round; }
+.tareas-ilustracion .casilla { fill: none; stroke: color-mix(in srgb, var(--texto) 45%, transparent); stroke-width: 1.3; }
+.tareas-ilustracion .visto { fill: none; stroke: var(--acento); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tareas-ilustracion .renglon { stroke: color-mix(in srgb, var(--texto) 30%, transparent); stroke-width: 2; stroke-linecap: round; }
+.tareas-ilustracion .vaporcito { fill: none; stroke: color-mix(in srgb, var(--texto) 35%, transparent); stroke-width: 1.3; stroke-linecap: round; }
+.tareas-ilustracion .taza { fill: var(--acento); }
+.tareas-ilustracion .asa { fill: none; stroke: var(--acento); stroke-width: 1.7; stroke-linecap: round; }
+.tareas-ilustracion .platito { stroke: color-mix(in srgb, var(--texto) 45%, transparent); stroke-width: 1.8; stroke-linecap: round; }
+
+/* ---------- Estadísticas ---------- */
+.dialogo.dialogo-estadisticas { width: min(640px, calc(100vw - 24px)); }
+.cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.cifra-panel {
+  display: grid; align-content: start; gap: 6px; padding: 14px 16px 12px; border-radius: 16px;
+  border: 1px solid var(--vidrio-borde); background: color-mix(in srgb, var(--texto) 4%, transparent);
+}
+.cifra-valor { font-family: var(--fuente-display); font-size: 2.2rem; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.cifra-etiqueta { color: var(--texto-suave); font-size: 0.84rem; line-height: 1.3; }
+
+.bloque-grafico { position: relative; display: grid; gap: 8px; }
+.bloque-grafico h3, .favorita h3 { font-size: 1rem; font-weight: 700; }
+.grafico svg { width: 100%; height: auto; overflow: visible; }
+.grafico text { font-family: var(--fuente-ui); font-size: 12.5px; }
+.grafico .linea-base { stroke: color-mix(in srgb, var(--texto) 25%, transparent); stroke-width: 1; }
+.grafico .barra-dia { fill: color-mix(in srgb, var(--acento) 55%, transparent); transition: fill 0.15s; }
+.grafico .barra-dia-hoy { fill: var(--acento); }
+.grafico .columna.resaltada .barra-dia { fill: var(--acento-hover); }
+.grafico .dia, .grafico .grafico-vacio { fill: var(--texto-suave); }
+.grafico .grafico-vacio { font-size: 14px; }
+.grafico .dia-hoy, .grafico .valor-hoy { fill: var(--texto); font-weight: 700; }
+.globo-grafico {
+  position: absolute; z-index: 2; transform: translate(-50%, -100%);
+  padding: 6px 10px; border-radius: 10px; border: 1px solid var(--vidrio-borde);
+  background: var(--fondo); color: var(--texto); font-size: 0.84rem; white-space: nowrap;
+  box-shadow: var(--sombra-suave); pointer-events: none;
+}
+
+.favorita {
+  display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 14px;
+  padding: 10px 16px 10px 10px; border-radius: 16px;
+  border: 1px solid var(--vidrio-borde); background: color-mix(in srgb, var(--texto) 4%, transparent);
+}
+.favorita:has(.favorita-ilustracion:empty) { grid-template-columns: minmax(0, 1fr); padding: 14px 16px; }
+.favorita-ilustracion { position: relative; width: 84px; aspect-ratio: 1; }
+.favorita-ilustracion:empty { display: none; }
+.favorita-ilustracion svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.favorita-texto { font-family: var(--fuente-titulos, var(--fuente-display)); font-size: 1.2rem; line-height: 1.25; margin-top: 2px; }
+.favorita-total:empty { display: none; }
+
+.acciones-datos {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  padding-top: 16px; border-top: 1px solid var(--vidrio-borde);
+}
+.exportar { display: inline-flex; align-items: center; gap: 8px; }
+.icono-boton { display: inline-grid; width: 18px; height: 18px; }
+.icono-boton svg { width: 100%; height: 100%; }
+
+/* ---------- Ventana flotante (Document Picture-in-Picture) ---------- */
+.app.flotante {
+  position: fixed; inset: 0; min-height: 0; container-type: size;
+  display: grid; grid-template-rows: minmax(0, 1fr) auto; place-items: center; gap: 2px;
+  padding: 8px 12px 14px;
+  background: radial-gradient(120% 75% at 50% 32%, color-mix(in srgb, var(--acento) 12%, var(--fondo)), var(--fondo) 70%);
+}
+/* La escena cabe entera (ancho o alto, lo que limite primero) y conserva su proporción. */
+.flotante .escena { width: min(100cqw, (100cqh - 62px) * 400 / 460); height: auto; aspect-ratio: 400 / 460; }
+.flotante-pie { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.flotante .reloj { margin: 0; font-size: 2.7rem; }
+.boton-principal.boton-flotante { min-width: 0; width: 52px; height: 52px; padding: 0; border-radius: 50%; }
+.boton-flotante svg { width: 24px; height: 24px; }
+
+/* ---------- Pantallas angostas ---------- */
+@media (max-width: 600px) {
+  .dialogo.panel-lateral { width: 100%; border-radius: 0; border: 0; }
+  .fila-sonido { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 6px 14px 10px 12px; }
+  .cifras { gap: 8px; }
+  .cifra-panel { padding: 12px 12px 10px; }
+  .cifra-valor { font-size: 1.85rem; }
+  .cifra-etiqueta { font-size: 0.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogo.panel-lateral[open] { animation: none; }
+  .tarea { transition: none; }
+}

@@ -1,6 +1,7 @@
 // Botones, pestañas de bloque, reloj y atajos de teclado.
 import { t } from '../textos.js';
 import { ICONOS } from './iconos.js';
+import { crearPintorReloj } from './reloj.js';
 
 export function montarControles(raiz, acciones) {
   const $ = (selector) => raiz.querySelector(selector);
@@ -19,11 +20,26 @@ export function montarControles(raiz, acciones) {
     racha: $('.racha'),
     rachaNumero: $('.racha-numero'),
     ajustes: $('[data-accion="ajustes"]'),
+    sonidos: $('[data-accion="sonidos"]'),
+    tareas: $('[data-accion="tareas"]'),
+    estadisticas: $('[data-accion="estadisticas"]'),
+    tareaActiva: $('.tarea-activa'),
+    tareaActivaTexto: $('.tarea-activa-texto'),
   };
 
   el.reiniciar.innerHTML = ICONOS.reiniciar;
   el.saltar.innerHTML = ICONOS.saltar;
   el.ajustes.innerHTML = ICONOS.ajustes;
+  el.sonidos.innerHTML = ICONOS.musica;
+  el.tareas.innerHTML = ICONOS.tareas;
+  el.estadisticas.innerHTML = ICONOS.estadisticas;
+  $('.tarea-activa-icono').innerHTML = ICONOS.diana;
+
+  el.sonidos.addEventListener('click', () => acciones.sonidos(el.sonidos));
+  el.tareas.addEventListener('click', () => acciones.tareas(el.tareas));
+  el.estadisticas.addEventListener('click', () => acciones.estadisticas(el.estadisticas));
+  el.racha.addEventListener('click', () => acciones.estadisticas(el.racha));
+  el.tareaActiva.addEventListener('click', () => acciones.tareas(el.tareaActiva));
   $('.racha-icono').innerHTML = ICONOS.racha;
   $('.pedido-flecha').innerHTML = ICONOS.abajo;
 
@@ -54,19 +70,7 @@ export function montarControles(raiz, acciones) {
     }
   });
 
-  // El reloj usa una celda por cifra para que los números no bailen con fuentes proporcionales.
-  let relojActual = '';
-  function pintarReloj(texto) {
-    if (texto === relojActual) return;
-    if (texto.length !== relojActual.length) {
-      el.reloj.innerHTML = [...texto].map((c) => (c === ':' ? '<span class="dos-puntos">:</span>' : `<span class="cifra">${c}</span>`)).join('');
-    } else {
-      [...texto].forEach((c, i) => {
-        if (c !== relojActual[i]) el.reloj.children[i].textContent = c;
-      });
-    }
-    relojActual = texto;
-  }
+  const pintarReloj = crearPintorReloj(el.reloj);
 
   let iconoActual = '';
   return {
@@ -93,6 +97,17 @@ export function montarControles(raiz, acciones) {
       el.racha.title = vista.rachaTexto;
       el.app.dataset.bloque = vista.bloque;
       el.app.dataset.fase = vista.fase;
+      el.tareaActiva.hidden = !vista.tareaTexto;
+      el.app.classList.toggle('con-tarea', Boolean(vista.tareaTexto));
+      if (vista.tareaTexto && el.tareaActivaTexto.textContent !== vista.tareaTexto) el.tareaActivaTexto.textContent = vista.tareaTexto;
+      el.sonidos.dataset.sonando = String(vista.sonando && !vista.silencio);
+      const iconoSonido = vista.silencio ? 'silencio' : 'musica';
+      if (el.sonidos.dataset.icono !== iconoSonido) {
+        el.sonidos.innerHTML = ICONOS[iconoSonido];
+        el.sonidos.dataset.icono = iconoSonido;
+        el.sonidos.setAttribute('aria-label', vista.textoSonidos);
+        el.sonidos.title = vista.textoSonidos;
+      }
       pintarReloj(vista.reloj);
     },
     pintarReloj,
