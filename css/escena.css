@@ -1,0 +1,60 @@
+/* Escena de la bebida: capas apiladas que comparten el viewBox 400 × 460. */
+
+.escena .capa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.capa-bebidas { pointer-events: none; }
+.bebida-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transition: opacity 0.6s ease; }
+.bebida-svg.entrando, .bebida-svg.saliendo { opacity: 0; }
+
+/* Máquina del descanso: entra desde atrás de la taza. */
+.capa-maquina {
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transform-origin: 50% 85%;
+  transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.capa-maquina.visible { opacity: 1; transform: none; }
+.capa-maquina .cafetera-luz { opacity: 0.2; transition: opacity 0.6s ease; }
+.capa-maquina.sirviendo .cafetera-luz { opacity: 0.95; }
+
+/* Jarrita de leche: llega desde arriba a la derecha. */
+.capa-jarra {
+  opacity: 0;
+  transform: translate(26px, -24px) rotate(5deg);
+  transform-origin: 70% 30%;
+  transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.capa-jarra.visible { opacity: 1; transform: none; }
+
+/* Vapor: cada voluta es su propia capa y solo se anima con transform y opacity. */
+.capa-vapor { pointer-events: none; opacity: var(--calor, 1); transition: opacity 2.5s linear; }
+.vapor { position: absolute; }
+.voluta {
+  position: absolute; bottom: 0; left: var(--x);
+  width: 24%; height: 100%;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation: subir-vapor var(--dur) cubic-bezier(0.33, 0.1, 0.5, 1) var(--retraso) infinite;
+  will-change: transform, opacity;
+}
+.voluta svg { width: 100%; height: 100%; overflow: visible; filter: blur(2.6px); }
+.vapor[data-volutas='0'] .voluta { display: none; }
+.vapor[data-volutas='1'] .voluta:nth-child(n + 2) { display: none; }
+.vapor[data-volutas='2'] .voluta:nth-child(n + 3) { display: none; }
+.vapor[data-volutas='3'] .voluta:nth-child(n + 4) { display: none; }
+
+@keyframes subir-vapor {
+  0% { transform: translate3d(0, 14%, 0) scale(0.65, 0.75); opacity: 0; }
+  22% { opacity: 0.85; }
+  60% { transform: translate3d(var(--deriva), -18%, 0) scale(1, 1.05); opacity: 0.55; }
+  100% { transform: translate3d(calc(var(--deriva) * -0.6), -48%, 0) scale(1.35, 1.2); opacity: 0; }
+}
+
+/* En pausa la escena se queda quieta. */
+.escena.pausada .voluta { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .voluta { animation: none; opacity: 0.32; transform: none; }
+  .capa-maquina, .capa-jarra { transition-duration: 0.01ms; }
+}

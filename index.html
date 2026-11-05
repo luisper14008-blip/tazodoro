@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tazodoro</title>
+  <meta name="description" content="">
+  <meta name="theme-color" content="#141B2E">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 9h17v11a6 6 0 0 1-6 6h-5a6 6 0 0 1-6-6z' fill='%23F4E9DA'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/escena.css">
+  <link rel="stylesheet" href="css/temas/nocturna.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="app" data-tema="nocturna">
+    <div class="fondo" aria-hidden="true"></div>
+
+    <header class="barra">
+      <div class="marca">
+        <h1 class="marca-nombre" data-t="app.nombre"></h1>
+        <span class="racha vidrio" role="img"><span class="racha-icono"></span><span class="racha-numero" aria-hidden="true">0</span></span>
+      </div>
+      <div class="barra-iconos">
+        <button class="boton-icono vidrio" type="button" data-accion="ajustes" data-t-aria="barra.ajustes" data-t-title="barra.ajustes"></button>
+      </div>
+    </header>
+
+    <nav class="bloques vidrio" data-t-aria="bloques.grupo">
+      <button class="bloque" type="button" data-bloque="foco" aria-pressed="true">
+        <span class="bloque-nombre" data-t="bloques.foco"></span>
+        <span class="bloque-breve" data-t="bloques.focoBreve" aria-hidden="true"></span>
+        <span class="contador" aria-hidden="true">0</span>
+      </button>
+      <button class="bloque" type="button" data-bloque="corto" aria-pressed="false">
+        <span class="bloque-nombre" data-t="bloques.corto"></span>
+        <span class="bloque-breve" data-t="bloques.cortoBreve" aria-hidden="true"></span>
+        <span class="contador" aria-hidden="true">0</span>
+      </button>
+      <button class="bloque" type="button" data-bloque="largo" aria-pressed="false">
+        <span class="bloque-nombre" data-t="bloques.largo"></span>
+        <span class="bloque-breve" data-t="bloques.largoBreve" aria-hidden="true"></span>
+        <span class="contador" aria-hidden="true">0</span>
+      </button>
+    </nav>
+
+    <main class="centro">
+      <div class="escena" role="img"></div>
+      <p class="mensaje vidrio" role="status"></p>
+      <button class="pedido" type="button" aria-haspopup="dialog" aria-expanded="false" data-t-title="pedido.abrir">
+        <span class="pedido-texto"></span><span class="pedido-flecha"></span>
+      </button>
+      <div class="reloj" role="timer"><span class="reloj-cifras"></span></div>
+      <p class="estado-linea"></p>
+      <div class="controles">
+        <button class="boton-redondo vidrio" type="button" data-accion="reiniciar" data-t-aria="controles.reiniciar" data-t-title="controles.reiniciar"></button>
+        <button class="boton-principal" type="button"><span class="principal-icono"></span><span class="principal-texto"></span></button>
+        <button class="boton-redondo vidrio" type="button" data-accion="saltar"></button>
+      </div>
+    </main>
+
+    <footer class="pie">
+      <p class="atajos">
+        <span class="atajo"><kbd data-t="atajos.espacio"></kbd> <span data-t="atajos.espacioAccion"></span></span>
+        <span class="atajo"><kbd data-t="atajos.r"></kbd> <span data-t="atajos.rAccion"></span></span>
+        <span class="atajo"><kbd data-t="atajos.s"></kbd> <span data-t="atajos.sAccion"></span></span>
+      </p>
+    </footer>
+
+    <div class="anuncios visualmente-oculto" aria-live="polite" aria-atomic="true"></div>
+  </div>
+</body>
+</html>

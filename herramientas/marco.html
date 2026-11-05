@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Marco de celular</title>
+  <style>
+    /* Herramienta de capturas: muestra la app en un marco del ancho de un celular.
+       Edge sin ventana no baja de cierto ancho en Windows; el marco sí mide 390 px. */
+    html, body { margin: 0; background: #0b0f1a; }
+    iframe { display: block; border: 0; }
+  </style>
+</head>
+<body>
+  <iframe id="marco" title="Tazodoro"></iframe>
+  <script>
+    const parametros = new URLSearchParams(location.search);
+    const marco = document.getElementById('marco');
+    marco.width = parametros.get('ancho') || 390;
+    marco.height = parametros.get('alto') || 844;
+    marco.src = parametros.get('url') || '../';
+  </script>
+</body>
+</html>

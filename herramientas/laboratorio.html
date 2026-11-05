@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratorio de bebidas</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/escena.css">
+  <link rel="stylesheet" href="../css/temas/nocturna.css">
+  <style>
+    /* Herramienta de desarrollo: muestra una bebida en grande en varios estados a la vez.
+       Uso: laboratorio.html?bebida=cappuccino&estados=foco:1,foco:0.5,foco:0,corto:0.2&escala=1&quieto=1 */
+    body { margin: 0; background: #10162a; }
+    .app { display: block; min-height: 100vh; padding: 12px; }
+    .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--ancho, 360px), 1fr)); gap: 12px; }
+    figure { margin: 0; padding: 8px 8px 10px; border-radius: 14px; background: radial-gradient(90% 70% at 50% 35%, #26314f, #141b2e 70%), #141b2e; }
+    figure .escena { width: 100%; }
+    figcaption { color: #bcc4d9; font: 600 14px system-ui, sans-serif; text-align: center; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app" data-tema="nocturna"><div class="rejilla"></div></div>
+  <script type="module">
+    import { crearEscena } from '../js/bebidas/escena.js';
+    import { obtenerBebida } from '../js/bebidas/catalogo.js';
+
+    const parametros = new URLSearchParams(location.search);
+    const bebida = obtenerBebida(parametros.get('bebida') || 'cappuccino');
+    const escala = Number(parametros.get('escala') || 1);
+    const movimiento = parametros.get('quieto') !== '1';
+    const estados = (parametros.get('estados') || 'foco:1,foco:0.5,foco:0.15,foco:0,corto:0.18,corto:0.7').split(',');
+    if (parametros.get('ancho')) document.documentElement.style.setProperty('--ancho', `${parametros.get('ancho')}px`);
+    const rejilla = document.querySelector('.rejilla');
+    if (!movimiento) document.querySelector('.app').classList.add('sin-transiciones');
+
+    for (const estado of estados) {
+      const [bloque, valor] = estado.split(':');
+      const nivel = Number(valor);
+      const figura = document.createElement('figure');
+      const contenedor = document.createElement('div');
+      const pie = document.createElement('figcaption');
+      pie.textContent = `${bebida.id} · ${bloque} · ${Math.round(nivel * 100)} %`;
+      figura.append(contenedor, pie);
+      rejilla.append(figura);
+      const escena = crearEscena(contenedor, { movimiento });
+      escena.mostrar(bebida, escala);
+      escena.actualizar({ nivel, bloque, fase: bloque === 'foco' ? 'pausado' : 'corriendo' });
+      if (bloque === 'foco') escena.pausar(!movimiento);
+    }
+  </script>
+</body>
+</html>

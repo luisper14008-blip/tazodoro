@@ -1,0 +1,149 @@
+/* Tema: Cafetería nocturna lo-fi. Noche azul y marrón, lluvia en la ventana, lámpara cálida. */
+
+.app[data-tema='nocturna'] {
+  --noche: #141b2e;
+  --pizarra: #222b45;
+  --madera: #3b2a22;
+  --ambar: #f2a33a;
+  --crema: #f4e9da;
+
+  --fondo: var(--noche);
+  --texto: var(--crema);
+  --texto-suave: #bcc4d9;
+  --acento: var(--ambar);
+  --acento-hover: #ffb75a;
+  --acento-texto: #1e140a;
+  --vidrio: rgba(30, 38, 62, 0.5);
+  --vidrio-fuerte: rgba(23, 29, 48, 0.92);
+  --vidrio-borde: rgba(255, 255, 255, 0.13);
+  --activo: rgba(242, 163, 58, 0.2);
+  --foco: #ffd08a;
+  --fuente-display: 'Young Serif', Georgia, serif;
+  --fuente-ui: 'Zen Maru Gothic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --maquina-cuerpo: #5e3726;
+  --maquina-luz: #a4683f;
+  --maquina-sombra: #26150d;
+  --muestra-tema: linear-gradient(160deg, #1d2a48 0%, #141b2e 55%, #3b2a22 56%, #2a1e18 100%);
+  color-scheme: dark;
+}
+
+/* ---------- Pared y luz ---------- */
+[data-tema='nocturna'] .fondo-pared {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(70% 55% at 50% 30%, rgba(52, 70, 112, 0.35), transparent 70%),
+    linear-gradient(180deg, #111829 0%, #172038 55%, #121a2c 100%);
+}
+
+/* ---------- Ventana con lluvia ---------- */
+[data-tema='nocturna'] .fondo-ventana {
+  position: absolute;
+  left: var(--escena-x, 50%);
+  top: 4vh;
+  width: min(80vw, 1000px);
+  height: calc(var(--mesa-y, 60vh) - 4vh);
+  transform: translateX(-50%);
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+}
+[data-tema='nocturna'] .ventana-ciudad {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 12% 74%, rgba(255, 178, 96, 0.5), transparent 4.5%),
+    radial-gradient(circle at 22% 62%, rgba(255, 214, 150, 0.28), transparent 3%),
+    radial-gradient(circle at 31% 80%, rgba(110, 200, 210, 0.32), transparent 5%),
+    radial-gradient(circle at 47% 70%, rgba(255, 150, 120, 0.22), transparent 4%),
+    radial-gradient(circle at 58% 84%, rgba(255, 190, 110, 0.4), transparent 6%),
+    radial-gradient(circle at 69% 66%, rgba(140, 170, 255, 0.3), transparent 3.5%),
+    radial-gradient(circle at 78% 77%, rgba(255, 120, 140, 0.26), transparent 5%),
+    radial-gradient(circle at 88% 70%, rgba(255, 200, 120, 0.38), transparent 4%),
+    radial-gradient(circle at 94% 86%, rgba(120, 210, 200, 0.22), transparent 6%),
+    radial-gradient(120% 60% at 50% 100%, rgba(60, 80, 130, 0.55), transparent 70%),
+    linear-gradient(180deg, #0a1020 0%, #111c33 50%, #1b2944 100%);
+}
+[data-tema='nocturna'] .ventana-lluvia { position: absolute; inset: 0; width: 100%; height: 100%; }
+[data-tema='nocturna'] .ventana-vaho {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(0deg, rgba(170, 186, 220, 0.16), transparent 35%),
+    radial-gradient(90% 70% at 50% 55%, transparent 55%, rgba(8, 12, 24, 0.45));
+}
+[data-tema='nocturna'] .ventana-marco {
+  position: absolute; inset: 0;
+  border: 14px solid #1d1613;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 220, 180, 0.06), inset 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+[data-tema='nocturna'] .parteluz-v::before,
+[data-tema='nocturna'] .parteluz-v::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 10px; background: #1d1613;
+  box-shadow: 1px 0 0 rgba(255, 210, 160, 0.08);
+}
+[data-tema='nocturna'] .parteluz-v::before { left: calc(33.333% - 5px); }
+[data-tema='nocturna'] .parteluz-v::after { left: calc(66.666% - 5px); }
+[data-tema='nocturna'] .parteluz-h {
+  position: absolute; left: 0; right: 0; top: 38%; height: 10px; background: #1d1613;
+  box-shadow: 0 1px 0 rgba(255, 210, 160, 0.08);
+}
+
+/* ---------- Lámpara ---------- */
+[data-tema='nocturna'] .lampara {
+  position: absolute; top: 0;
+  left: calc(var(--escena-x, 50%) + min(29vw, 290px));
+  height: calc(var(--mesa-y, 60vh) * 0.52);
+  width: calc(var(--mesa-y, 60vh) * 0.52 * 0.4);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+[data-tema='nocturna'] .fondo-halo {
+  position: absolute;
+  left: calc(var(--escena-x, 50%) + min(29vw, 290px));
+  top: calc(var(--mesa-y, 60vh) * 0.47);
+  width: 900px; height: 760px;
+  transform: translate(-50%, -42%);
+  background: radial-gradient(closest-side, rgba(255, 196, 120, 0.24), rgba(255, 170, 80, 0.09) 45%, transparent);
+}
+
+/* ---------- Plantas ---------- */
+[data-tema='nocturna'] .planta { position: absolute; overflow: visible; }
+[data-tema='nocturna'] .planta .hojas { fill: #0d1524; }
+[data-tema='nocturna'] .planta .tallo { stroke: #0d1524; stroke-width: 2.4; fill: none; }
+[data-tema='nocturna'] .planta .maceta { fill: #2a1d18; }
+[data-tema='nocturna'] .planta .maceta-borde { fill: #3a2920; }
+[data-tema='nocturna'] .planta-colgante {
+  top: 0;
+  left: calc(var(--escena-x, 50%) - min(46vw, 560px));
+  width: clamp(96px, 12vw, 170px);
+  height: auto;
+  opacity: 0.95;
+}
+[data-tema='nocturna'] .planta-maceta {
+  top: calc(var(--mesa-y, 60vh) - clamp(110px, 13vw, 190px) * 1.12);
+  left: calc(var(--escena-x, 50%) + min(37vw, 450px));
+  width: clamp(120px, 14vw, 200px);
+  height: auto;
+  transform: translateX(-50%);
+  filter: drop-shadow(-3px 0 0 rgba(242, 163, 58, 0.12));
+}
+
+/* ---------- Mesa de madera ---------- */
+[data-tema='nocturna'] .fondo-mesa {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  top: var(--mesa-y, 60vh);
+  border-top: 2px solid #5b4232;
+  background:
+    radial-gradient(42% 46% at calc(var(--escena-x, 50%) + 50px) 10%, rgba(255, 190, 115, 0.2), transparent 70%),
+    repeating-linear-gradient(177deg, rgba(255, 236, 210, 0.022) 0 2px, transparent 2px 11px),
+    repeating-linear-gradient(183deg, rgba(0, 0, 0, 0.07) 0 1px, transparent 1px 23px),
+    linear-gradient(180deg, #4a3427 0%, #3b2a22 7%, #2c1f19 48%, #1b1410 100%);
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 600px) {
+  [data-tema='nocturna'] .fondo-ventana { width: calc(100vw - 20px); top: 0; height: var(--mesa-y, 60vh); }
+  [data-tema='nocturna'] .planta-colgante { left: -18px; width: 92px; }
+  [data-tema='nocturna'] .planta-maceta { display: none; }
+  [data-tema='nocturna'] .lampara { left: calc(100% - 46px); }
+  [data-tema='nocturna'] .fondo-halo { left: calc(100% - 46px); }
+}
