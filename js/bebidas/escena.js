@@ -1,7 +1,7 @@
 // Orquesta la escena: la bebida, el vapor, los sorbos y las máquinas del descanso.
 // Capas: máquina (atrás) → bebida → vapor → jarra (adelante). Todas comparten el viewBox 400 × 460.
 import { crearBebida, ESCENA } from './renderizador.js';
-import { crearCafetera, crearJarra } from './maquinas.js';
+import { HERRAMIENTAS } from './maquinas.js';
 import { pasoDeServido } from './catalogo.js';
 import { semillaDeTexto, suave } from '../util/azar.js';
 import { nuevoId } from '../util/svg.js';
@@ -67,13 +67,28 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
 
   const intervaloSorbo = () => (40000 + Math.random() * 50000) / (factor > 1 ? 6 : 1);
 
+  // Arma las herramientas que usa esta bebida al servirse: las de atrás (cafetera, base de licuadora)
+  // quedan durante todo el descanso; las de adelante (jarras, tetera…) aparecen solo mientras sirven.
   function construirMaquinas() {
     const borde = actual.render.borde();
-    const cafetera = crearCafetera({ salida: [borde.x, borde.arriba - 22], mesa: ESCENA.mesa, movimiento });
-    const jarra = crearJarra({ salida: [borde.x + 10, borde.arriba - 34], movimiento });
-    capaMaquina.innerHTML = cafetera.svg;
-    capaJarra.innerHTML = jarra.svg;
-    salidas = { cafetera: cafetera.salida, separacion: cafetera.separacion, jarra: jarra.salida };
+    const pasos = actual.bebida.servido || [];
+    let atras = '';
+    let adelante = '';
+    salidas = {};
+    for (const nombre of new Set(pasos.map((paso) => paso.con))) {
+      const herramienta = HERRAMIENTAS[nombre];
+      if (!herramienta) continue;
+      const salida = [borde.x + herramienta.pico[0], borde.arriba + herramienta.pico[1]];
+      const color = pasos.find((paso) => paso.con === nombre)?.color;
+      const creada = herramienta.crear({ salida, mesa: ESCENA.mesa, movimiento, color });
+      const grupo = `<g class="herramienta" data-herramienta="${nombre}">${creada.svg}</g>`;
+      if (herramienta.capa === 'atras') atras += grupo;
+      else adelante += grupo;
+      if (herramienta.base) atras += herramienta.base({ salida, mesa: ESCENA.mesa }).svg;
+      salidas[nombre] = { desde: creada.salida, separacion: creada.separacion };
+    }
+    capaMaquina.innerHTML = atras;
+    capaJarra.innerHTML = adelante;
     claveMaquinas = '';
   }
 
@@ -113,16 +128,20 @@ export function crearEscena(contenedor, { movimiento = true, factor = 1 } = {}) 
     const descanso = bloque !== 'foco';
     const sirviendo = descanso && fase === 'corriendo' && nivel < 0.995 && !transicion;
     const paso = descanso ? pasoDeServido(actual.bebida, nivel) : null;
-    const herramienta = sirviendo ? paso?.con : null;
-    const clave = `${descanso}|${herramienta}`;
+    const activa = sirviendo ? paso?.con : null;
+    const clave = `${descanso}|${activa}|${paso?.color}`;
     if (clave === claveMaquinas && !forzar) return;
     claveMaquinas = clave;
-    capaMaquina.classList.toggle('visible', descanso);
-    capaMaquina.classList.toggle('sirviendo', herramienta === 'cafetera');
-    capaJarra.classList.toggle('visible', herramienta === 'jarra');
-    if (herramienta === 'cafetera') actual.render.chorro({ tipo: 'cafe', desde: salidas.cafetera, separacion: salidas.separacion });
-    else if (herramienta === 'jarra') actual.render.chorro({ tipo: 'leche', desde: salidas.jarra });
-    else actual.render.chorro(null);
+    const herramienta = HERRAMIENTAS[activa];
+    capaMaquina.classList.toggle('visible', descanso && capaMaquina.childElementCount > 0);
+    capaMaquina.classList.toggle('sirviendo', activa === 'cafetera');
+    capaJarra.querySelectorAll('.herramienta').forEach((grupo) => grupo.classList.toggle('activa', grupo.dataset.herramienta === activa));
+    capaJarra.classList.toggle('visible', herramienta?.capa === 'adelante');
+    if (herramienta && salidas[activa]) {
+      actual.render.chorro({ tipo: herramienta.chorro, desde: salidas[activa].desde, color: paso.color, ancho: herramienta.ancho, separacion: salidas[activa].separacion });
+    } else {
+      actual.render.chorro(null);
+    }
   }
 
   // El vapor se apaga a medida que la bebida se enfría; al servir vuelve a subir.

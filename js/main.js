@@ -3,11 +3,11 @@ import { textos, t, aplicarTextos, alAzar } from './textos.js';
 import { cargar, guardar, modoPrueba, escucharOtrasPestanas } from './estado.js';
 import { crearTemporizador } from './temporizador.js';
 import { conteosDeHoy, racha } from './registros.js';
-import { obtenerBebida, escalaPorMinutos } from './bebidas/catalogo.js';
+import { CATALOGO, obtenerBebida, escalaPorMinutos } from './bebidas/catalogo.js';
 import { crearEscena } from './bebidas/escena.js';
 import { formatoReloj, MINUTO } from './util/tiempo.js';
 import { montarControles } from './ui/controles.js';
-import { montarTamanos } from './ui/tamanos.js';
+import { montarCarta } from './ui/carta.js';
 import { montarAjustes } from './ui/ajustes.js';
 import { confirmar } from './ui/dialogo.js';
 import { montarPrueba, aplicarParametros } from './ui/prueba.js';
@@ -65,17 +65,24 @@ const controles = montarControles(raiz, {
     temporizador.saltar();
   },
   irA: cambiarBloque,
-  pedido: (boton) => tamanos.alternar(boton),
+  pedido: (boton) => carta.abrir(boton),
   ajustes: (boton) => ajustes.abrir(boton),
 });
 
-const tamanos = montarTamanos(raiz, {
+const carta = montarCarta(raiz, {
   datos: () => app.datos,
+  // El tamaño no se cambia con una taza en curso; la bebida sí (aparece con el mismo nivel).
   bloqueado: () => {
     const e = temporizador.estado();
     return e.bloque === 'foco' && e.fase !== 'listo';
   },
-  alElegir(tamano, minutos) {
+  alElegirBebida(id) {
+    app.datos.seleccion.bebida = id;
+    app.guardar();
+    mostrarBebida();
+    pintar();
+  },
+  alElegirTamano(tamano, minutos) {
     if (minutos) app.datos.ajustes.minutos.personalizada = minutos;
     app.datos.seleccion.tamano = tamano;
     app.guardar();
@@ -134,7 +141,7 @@ function alCambiarTemporizador(motivo) {
   escena.pausar(e.fase === 'pausado');
   if (motivo === 'empezar') anunciar(t('anuncios.empieza', { bloque: t(`bloques.${e.bloque}`).toLocaleLowerCase('es') }));
   if (motivo === 'pausar') anunciar(t('anuncios.pausa'));
-  tamanos.pintar();
+  carta.pintar();
   pintar();
   sincronizarLatido();
   latido();
@@ -307,7 +314,15 @@ window.addEventListener('resize', alinearMesa);
 // ---------- Arranque ----------
 mostrarBebida();
 await temporizador.iniciar();
-if (modoPrueba) aplicarParametros(temporizador);
+if (modoPrueba) {
+  aplicarParametros(temporizador, {
+    elegirBebida(id) {
+      if (!CATALOGO[id]) return;
+      app.datos.seleccion.bebida = id;
+      app.guardar();
+    },
+  });
+}
 alCambiarTemporizador('inicio');
 alinearMesa();
 raiz.classList.add('lista');

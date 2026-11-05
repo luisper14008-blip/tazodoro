@@ -55,6 +55,28 @@ const GENERADORES = {
     return c.toDataURL('image/png');
   },
 
+  // Hielo picado del frappé: cristalitos blancos y sombras frías.
+  hielo() {
+    const [c, ctx] = lienzo();
+    const azar = crearAzar(31);
+    for (let i = 0; i < 900; i++) {
+      const x = azar.entre(0, TAM);
+      const y = azar.entre(0, TAM);
+      const r = azar.entre(0.6, 2.6);
+      envolver(x, y, r, (px, py) => {
+        ctx.beginPath();
+        ctx.moveTo(px, py - r);
+        ctx.lineTo(px + r * 0.8, py);
+        ctx.lineTo(px, py + r);
+        ctx.lineTo(px - r * 0.8, py);
+        ctx.closePath();
+        ctx.fillStyle = azar.siguiente() < 0.7 ? `rgba(255, 255, 255, ${azar.entre(0.25, 0.6)})` : `rgba(90, 60, 40, ${azar.entre(0.1, 0.22)})`;
+        ctx.fill();
+      });
+    }
+    return c.toDataURL('image/png');
+  },
+
   // Crema de espresso atigrada: manchas alargadas oscuras y doradas.
   crema() {
     const [c, ctx] = lienzo();
@@ -71,11 +93,11 @@ const GENERADORES = {
         ctx.restore();
       });
     };
-    for (let i = 0; i < 260; i++) {
-      mancha(azar.entre(0, TAM), azar.entre(0, TAM), azar.entre(4, 16), azar.entre(1.2, 3.5), azar.entre(-0.5, 0.5), `rgba(92, 50, 20, ${azar.entre(0.08, 0.2)})`);
+    for (let i = 0; i < 300; i++) {
+      mancha(azar.entre(0, TAM), azar.entre(0, TAM), azar.entre(4, 16), azar.entre(1.2, 3.5), azar.entre(-0.5, 0.5), `rgba(92, 50, 20, ${azar.entre(0.15, 0.32)})`);
     }
-    for (let i = 0; i < 220; i++) {
-      mancha(azar.entre(0, TAM), azar.entre(0, TAM), azar.entre(3, 10), azar.entre(1, 2.6), azar.entre(-0.6, 0.6), `rgba(236, 178, 98, ${azar.entre(0.1, 0.24)})`);
+    for (let i = 0; i < 240; i++) {
+      mancha(azar.entre(0, TAM), azar.entre(0, TAM), azar.entre(3, 10), azar.entre(1, 2.6), azar.entre(-0.6, 0.6), `rgba(240, 186, 106, ${azar.entre(0.18, 0.34)})`);
     }
     for (let i = 0; i < 500; i++) {
       mancha(azar.entre(0, TAM), azar.entre(0, TAM), azar.entre(0.5, 1.3), azar.entre(0.5, 1.3), 0, `rgba(255, 236, 200, ${azar.entre(0.15, 0.4)})`);

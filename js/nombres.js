@@ -14,6 +14,7 @@ export function nombreTamano(bebidaId, tamano) {
 export function nombrePedido(bebidaId, tamano, minutos) {
   const bebida = nombreBebida(bebidaId);
   if (tamano === 'personalizada') return t('pedido.personalizado', { bebida, n: minutos });
-  const especial = textos.tamanosEspeciales[bebidaId]?.[tamano];
+  // En la frase el tamaño va en minúscula: "Espresso doppio", como "Cappuccino mediano".
+  const especial = textos.tamanosEspeciales[bebidaId]?.[tamano]?.toLocaleLowerCase('es');
   return t('pedido.conTamano', { bebida, tamano: especial ?? t(`adjetivos.${tamano}`) });
 }

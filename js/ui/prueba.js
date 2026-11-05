@@ -45,9 +45,10 @@ export function montarPrueba(app, { temporizador, escena, alCambiar }) {
   };
 }
 
-// Parámetros para capturas: ?prueba=1&bloque=corto&progreso=50&corriendo=1
-export function aplicarParametros(temporizador) {
+// Parámetros para capturas: ?prueba=1&bebida=latte&bloque=corto&progreso=50&corriendo=1
+export function aplicarParametros(temporizador, { elegirBebida } = {}) {
   const parametros = new URLSearchParams(location.search);
+  if (parametros.get('bebida')) elegirBebida?.(parametros.get('bebida'));
   const bloque = parametros.get('bloque');
   if (['foco', 'corto', 'largo'].includes(bloque)) temporizador.irA(bloque);
   const progreso = Number(parametros.get('progreso'));

@@ -64,7 +64,15 @@ export const textos = {
   pedido: {
     conTamano: '{bebida} {tamano}',
     personalizado: '{bebida} de {n} min',
-    abrir: 'Cambiar el tamaño de la taza',
+    abrir: 'Abrir la carta para cambiar de bebida o tamaño',
+  },
+
+  carta: {
+    titulo: 'La carta',
+    ayuda: 'Si cambias de bebida a mitad de la taza, la nueva aparece con el mismo nivel.',
+    cerrar: 'Cerrar',
+    tamano: 'Tamaño',
+    secciones: { cafe: 'Con café', frios: 'Fríos', otros: 'Tés y chocolate' },
   },
 
   estado: {
@@ -166,10 +174,18 @@ export const textos = {
   },
 
   bebidas: {
-    cappuccino: {
-      nombre: 'Cappuccino',
-      frase: 'Espuma sedosa, un corazón dibujado y un toque de cacao.',
-    },
+    americano: { nombre: 'Americano', frase: 'Café negro y brillante, recién servido y humeante.' },
+    espresso: { nombre: 'Espresso', frase: 'Pequeño e intenso, con su crema dorada.' },
+    cappuccino: { nombre: 'Cappuccino', frase: 'Espuma sedosa, un corazón dibujado y un toque de cacao.' },
+    latte: { nombre: 'Latte', frase: 'Leche, café y espuma en capas, con una roseta encima.' },
+    mocha: { nombre: 'Mocha', frase: 'Chocolate y espresso bajo una nube de crema.' },
+    caramelMacchiato: { nombre: 'Caramel macchiato', frase: 'Leche, espresso y una rejilla de caramelo.' },
+    coldBrew: { nombre: 'Cold brew', frase: 'Café de infusión lenta, frío y con hielo.' },
+    frappe: { nombre: 'Frappé', frase: 'Café helado y batido, con crema y salsa.' },
+    matcha: { nombre: 'Matcha latte', frase: 'Té verde batido con leche y una hoja de espuma.' },
+    chai: { nombre: 'Chai latte', frase: 'Té especiado con canela y anís estrellado.' },
+    chocolate: { nombre: 'Chocolate caliente', frase: 'Espeso, dulce y con malvaviscos.' },
+    bubbleTea: { nombre: 'Bubble tea', frase: 'Té con leche y perlas de tapioca.' },
   },
 
   temas: {

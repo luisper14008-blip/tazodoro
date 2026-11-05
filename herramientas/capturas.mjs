@@ -64,12 +64,31 @@ async function capturar(url, archivo, [ancho, alto]) {
   return archivo;
 }
 
+// Opciones: --bebida=latte (bebida de las capturas de la app) y --bebidas (una hoja por bebida en el laboratorio).
+const opcion = (nombre) => process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split('=')[1] ?? null;
+const bebida = opcion('bebida');
+const BEBIDAS = ['americano', 'espresso', 'cappuccino', 'latte', 'mocha', 'caramelMacchiato', 'coldBrew', 'frappe', 'bubbleTea', 'matcha', 'chai', 'chocolate'];
+
 await rm(perfiles, { recursive: true, force: true }).catch(() => {});
 await mkdir(carpeta, { recursive: true });
+
+if (process.argv.includes('--bebidas')) {
+  for (const id of BEBIDAS) {
+    const archivo = join(carpeta, `${prefijo}-bebida-${id}.png`);
+    const url = `${base}herramientas/laboratorio.html?bebida=${id}&estados=foco:1,foco:0.5,foco:0,corto:0.6&ancho=330&quieto=1`;
+    try {
+      await capturar(url, archivo, [1440, 470]);
+      console.log(`listo: ${archivo}`);
+    } catch (error) {
+      console.error(`falló ${archivo}: ${error.message}`);
+    }
+  }
+}
+
 for (const [ancho, alto] of tamanos) {
   for (const [nombre, consulta] of estados) {
     const archivo = join(carpeta, `${prefijo}-${ancho}-${nombre}.png`);
-    const app = `${base}?prueba=1&quieto=1&${consulta}`;
+    const app = `${base}?prueba=1&quieto=1&${consulta}${bebida ? `&bebida=${bebida}` : ''}`;
     // Anchos de celular: la app va dentro de un marco, porque la ventana no puede ser tan angosta.
     const celular = ancho < 600;
     const url = celular ? `${base}herramientas/marco.html?ancho=${ancho}&alto=${alto}&url=${encodeURIComponent(app)}` : app;

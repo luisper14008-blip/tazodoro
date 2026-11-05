@@ -34,13 +34,16 @@ Pomodoro de café: la bebida que eliges se vacía al ritmo del tiempo y se vuelv
 - `?prueba=1`: tiempo ×60, deslizador de progreso y parámetros `progreso` (0-100), `bloque` (foco, corto, largo) y `corriendo=1` para capturas.
 
 ## Render de bebidas
-- `js/bebidas/catalogo.js`: cada bebida es datos (recipiente, capas, superficie, efectos, vaciado, servido).
-- `js/bebidas/recipientes.js`: perfiles de revolución proyectados en vista de tres cuartos. Ángulo de cámara por recipiente; en opacos se valida `profundidad ≤ (r arriba + r abajo) · tan(ángulo)` para que la superficie se vea hasta el fondo.
-- La superficie se dibuja en coordenadas unitarias (círculo de radio 1) y se ubica con un solo `transform` (translate + scale): una sola escritura por cuadro.
-- Lo característico de cada bebida (arte latte que se deforma, crema que adelgaza…) es función del progreso y se recalcula cada 0,4 % con ruido de semilla fija.
-- Sin filtros SVG animados. Texturas generadas una vez con canvas. Ondas con SMIL (se pausan con `pauseAnimations`). Vapor en capas HTML con CSS (transform y opacity).
-- Capas de la escena: máquina (atrás) → bebida (con chorro) → vapor → jarra (adelante).
-- `vaciado.modo`: `desde-arriba`, `desde-abajo` (pajita) o `espuma-flota`.
+- `js/bebidas/catalogo.js`: cada bebida es datos (recipiente, capas, superficie, flotantes, efectos, vaciado, servido) y `CARTA` define el orden por secciones.
+- `js/bebidas/recipientes.js`: perfiles de revolución proyectados en vista de tres cuartos. Ángulo de cámara por recipiente; en opacos se valida `profundidad ≤ (r arriba + r abajo) · tan(ángulo)` para que la superficie se vea hasta el fondo. `escalaBase` agranda recipientes chicos (tacita).
+- `renderizador.js` elige el armado: `opaco.js` (tazas y mugs: se ve el interior por la abertura) o `vidrio.js` (vasos: capas visibles por las paredes, base gruesa, pajita, tapa, condensación). `partes.js` tiene lo común (plato, cucharita, sombra, chorros).
+- `capas.js` calcula qué capas quedan según el nivel y `vaciado.modo` (`desde-arriba`, `desde-abajo` con pajita, `espuma-flota`).
+- La superficie (`detalles.js` + `artes.js`: corazón, roseta, polvo, rejilla de caramelo) se dibuja en coordenadas unitarias y se ubica con un solo `transform`. En vasos, si arriba queda otra capa, se ve lisa con su color.
+- `flotantes.js`: crema batida, malvaviscos, canela y anís, hielos (y hielos sumergidos) y perlas de tapioca.
+- `restos.js`: anillo, espuma pegada, cacao, gotas, chorreado y rastros (tazas); anillos de espuma y escurridos (vasos: lo de la pared del fondo va antes del líquido, lo del frente después, recortado sobre la superficie).
+- Lo característico de cada bebida es función del progreso y se recalcula cada 0,4 % con ruido de semilla fija. Sin filtros SVG animados; texturas (microespuma, crema, hielo) generadas una vez con canvas.
+- Capas de la escena: herramientas de atrás (cafetera, base de licuadora) → bebida (con chorro) → vapor → herramientas de adelante (jarra, jarra de vidrio, tetera, vaso de licuadora, coctelera). Registro en `maquinas.js` (`HERRAMIENTAS`); cada paso de `servido` dice con qué y de qué color.
+- Tapas, pajitas y sellos se ocultan mientras se sirve y aparecen al final.
 
 ## Bebidas
 | Bebida | Recipiente | Detalles | Cómo se vacía | Se sirve con |
@@ -48,12 +51,12 @@ Pomodoro de café: la bebida que eliges se vacía al ritmo del tiempo y se vuelv
 | Americano | Taza con plato | Café negro brillante, mucho vapor | Vapor se apaga; anillo marrón | Cafetera |
 | Espresso | Tacita con plato y cucharita | Crema dorada atigrada | Crema adelgaza; rastros al fondo | Cafetera |
 | Cappuccino | Taza ancha con plato | Espuma, corazón latte art, cacao | Corazón baja, se deforma y se deshace | Cafetera + jarrita de leche |
-| Latte | Vaso de vidrio alto | Capas leche/café/espuma, roseta | Capas bajan en orden; anillos de espuma | Cafetera |
+| Latte | Vaso de vidrio alto | Capas leche/café/espuma, roseta | Capas bajan en orden; anillos de espuma | Jarrita (leche y espuma) + cafetera |
 | Mocha | Mug | Chocolate, crema batida, hilo y virutas | Crema se hunde y se derrite | Cafetera |
-| Caramel macchiato | Vaso de vidrio | Leche abajo, espresso arriba, rejilla de caramelo | Caramelo escurre por las paredes | Cafetera |
+| Caramel macchiato | Vaso de vidrio | Leche abajo, espresso arriba, rejilla de caramelo | Caramelo escurre por las paredes | Jarrita + cafetera |
 | Cold brew con hielo | Vaso de vidrio con pajita | Café oscuro, hielos, condensación | Hielos bajan y se encogen; gotas resbalan | Jarra de vidrio |
 | Frappé | Vaso con domo y pajita gruesa | Base helada, crema batida, salsa | Crema se hunde; marcas de salsa | Licuadora |
-| Matcha latte | Vaso de vidrio | Verde intenso, espuma, hoja latte art | La hoja se desdibuja | Tetera |
+| Matcha latte | Vaso de vidrio | Verde intenso, espuma, hoja latte art | La hoja se desdibuja | Jarrita (leche) + tetera |
 | Chai latte | Mug | Dorado especiado, canela, rama y anís | La canela se dispersa | Tetera |
 | Chocolate caliente | Mug grande | Chocolate espeso con malvaviscos | Malvaviscos se encogen y se hunden | Jarrita |
 | Bubble tea | Vaso alto sellado con pajita ancha | Té con leche y perlas | Baja; quedan 2 o 3 perlas | Coctelera |
@@ -70,7 +73,7 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 
 ## Fases
 - [x] **Fase 1** (2026-11-04): estructura, temporizador completo, tamaños, ciclo con recarga, ajustes básicos, Cappuccino terminado y tema Cafetería nocturna lo-fi. Incluye campanita, notificación, favicon que se vacía y modo de prueba. Recarga del Cappuccino: la cafetera sirve el espresso (hasta 30 %) y la jarrita la leche; el corazón se forma al final.
-- [ ] **Fase 2**: las otras 11 bebidas y la carta.
+- [x] **Fase 2** (2026-11-05, rama `fase-2-bebidas`): las otras 11 bebidas y la carta. La carta (`js/ui/carta.js`) reemplazó a la ventanita de tamaños: elige bebida y tamaño en un solo lugar; las miniaturas usan el mismo renderizador, quietas.
 - [ ] **Fase 3**: los otros 3 temas y su selector con vista previa.
 - [ ] **Fase 4**: sonidos ambientales, tareas, estadísticas con racha y ventana flotante.
 - [ ] **Fase 5**: responsive, accesibilidad, rendimiento, README, service worker mínimo para avisos en Android y preparación para publicar.
@@ -84,8 +87,8 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 ## Herramientas de desarrollo (`herramientas/`)
 - `servidor.mjs`: servidor local sin dependencias y sin caché (puerto 4173).
 - `laboratorio.html?bebida=cappuccino&estados=foco:1,foco:0.5,corto:0.6&quieto=1`: una bebida en grande en varios estados. Úsalo para pulir cada bebida antes de pasar a la siguiente.
-- `capturas.mjs`: capturas con Edge sin ventana. Los anchos de celular se toman dentro de `marco.html`, porque en Windows la ventana no baja de ~500 px.
-- Parámetros de prueba: `?prueba=1&quieto=1&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas).
+- `capturas.mjs`: capturas con Edge sin ventana. Los anchos de celular se toman dentro de `marco.html`, porque en Windows la ventana no baja de ~500 px. `--bebida=latte` elige la bebida de las capturas de la app; `--bebidas` agrega una hoja por bebida (100 %, 50 %, 0 % y descanso).
+- Parámetros de prueba: `?prueba=1&quieto=1&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas).
 - El panel del navegador de Claude suele estar oculto: ahí no corren los cuadros de animación ni las transiciones. El pulso del worker repinta una vez por segundo cuando la página está visible pero sin cuadros.
 
 ## Notas

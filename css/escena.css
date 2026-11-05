@@ -26,6 +26,8 @@
   pointer-events: none;
 }
 .capa-jarra.visible { opacity: 1; transform: none; }
+.capa-jarra .herramienta { opacity: 0; transition: opacity 0.4s ease; }
+.capa-jarra .herramienta.activa { opacity: 1; }
 
 /* Vapor: cada voluta es su propia capa y solo se anima con transform y opacity. */
 .capa-vapor { pointer-events: none; opacity: var(--calor, 1); transition: opacity 2.5s linear; }

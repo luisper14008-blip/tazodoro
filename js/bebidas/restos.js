@@ -86,6 +86,32 @@ export function crearRestos(bebida, g, ids, semilla = 31) {
     }
   }
 
+  if (tipos.has('chorreado')) {
+    // Chocolate espeso que bajó por la pared desde el anillo.
+    for (let k = 0; k < 5; k++) {
+      const theta = PI + azar.entre(0.4, PI - 0.4);
+      markup += goteo(g, theta, tope + 1, tope - azar.entre(12, 36), azar.entre(4, 7), colores.marca, 0.42);
+    }
+  }
+
+  if (tipos.has('rastros')) {
+    // Manchas oscuras de café y vetas de crema cerca del fondo.
+    for (let k = 0; k < 5; k++) {
+      const tc = PI + azar.entre(0.4, PI - 0.4);
+      const hc = def.piso + azar.entre(2, 13);
+      const dt = azar.entre(0.1, 0.26);
+      const dh = azar.entre(1.6, 3.6);
+      const fase = azar.entre(0, 9);
+      const puntos = [];
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * PI * 2;
+        const deform = 1 + 0.35 * ruido(i / 16, fase);
+        puntos.push(g.pared(tc + dt * Math.cos(a) * deform, hc + dh * Math.sin(a) * deform));
+      }
+      markup += `<path d="${caminoSuave(puntos)}" fill="${k % 2 ? colores.espuma : colores.marca}" opacity="${n(k % 2 ? 0.55 : 0.4)}"/>`;
+    }
+  }
+
   if (tipos.has('gotas')) {
     // Gotas cerca del fondo, con un hilo que baja.
     for (let k = 0; k < 6; k++) {
@@ -101,4 +127,67 @@ export function crearRestos(bebida, g, ids, semilla = 31) {
   }
 
   return { defs, markup };
+}
+
+// Hilo que baja por la pared (caramelo, salsa, chocolate) con una gota al final.
+function goteo(g, theta, hDesde, hHasta, ancho, color, opacidad) {
+  const izquierda = [];
+  const derecha = [];
+  const pasos = 10;
+  const fase = theta * 7.3;
+  const vaiven = (u) => 1.3 * Math.sin(u * Math.PI * 2.2 + fase) * u;
+  for (let i = 0; i <= pasos; i++) {
+    const u = i / pasos;
+    const h = hDesde + (hHasta - hDesde) * u;
+    const [x, y] = g.pared(theta, h);
+    const a = (ancho / 2) * (1 - 0.45 * u);
+    izquierda.push([x - a + vaiven(u), y]);
+    derecha.unshift([x + a + vaiven(u), y]);
+  }
+  const [xBase, yf] = g.pared(theta, hHasta);
+  const xf = xBase + vaiven(1);
+  return `<path d="${caminoSuave([...izquierda, ...derecha])}" fill="${color}" opacity="${n(opacidad)}"/>` +
+    `<ellipse cx="${n(xf)}" cy="${n(yf + 0.8)}" rx="${n(ancho * 0.48)}" ry="${n(ancho * 0.62)}" fill="${color}" opacity="${n(opacidad)}"/>`;
+}
+
+// Restos en vasos: lo de la pared del fondo se dibuja antes del líquido (queda tapado mientras está sumergido)
+// y lo de la pared del frente después, recortado por encima de la superficie.
+export function crearRestosVidrio(bebida, g, semilla = 41) {
+  const tipos = new Set(bebida.vaciado?.restos || []);
+  const azar = crearAzar(semilla);
+  const ruido = crearRuido(semilla + 3, 4);
+  const { def } = g;
+  const colores = { espuma: '#FFFFFF', marca: '#C5782A', ...(bebida.vaciado?.coloresRestos || {}) };
+  let atras = '';
+  let frente = '';
+
+  if (tipos.has('anillos-espuma')) {
+    // Encaje de espuma: un anillo por cada sorbo, irregular y con huecos.
+    const anillos = 6;
+    for (let k = 0; k < anillos; k++) {
+      const h = def.piso + 18 + ((def.lleno - def.piso - 26) * (k + azar.entre(0.2, 0.8))) / anillos;
+      const grosor = azar.entre(1.2, 2.6);
+      const fase = azar.entre(0, 9);
+      const tramos = [[PI + 0.05, 2 * PI - 0.05, 'atras'], [0.05, PI - 0.05, 'frente']];
+      for (const [desde, hasta, lado] of tramos) {
+        const d = banda(g, desde, hasta, (u) => h + grosor * (0.5 + 0.6 * ruido(u, fase)), (u) => h - grosor * (0.3 + 0.5 * ruido(u + 0.4, fase + 1)), 40);
+        const trazo = `<path d="${d}" fill="${colores.espuma}" opacity="${n(lado === 'atras' ? azar.entre(0.3, 0.45) : azar.entre(0.45, 0.7))}"/>`;
+        if (lado === 'atras') atras += trazo;
+        else frente += trazo;
+      }
+    }
+  }
+
+  if (tipos.has('escurrido')) {
+    // Hilos de caramelo o salsa que bajan desde el borde.
+    for (let k = 0; k < 9; k++) {
+      const atrasLado = k % 2 === 0;
+      const theta = atrasLado ? PI + azar.entre(0.3, PI - 0.3) : azar.entre(0.35, PI - 0.35);
+      const trazo = goteo(g, theta, def.lleno + 2, def.lleno - azar.entre(20, 75), azar.entre(1.8, 3.2), colores.marca, atrasLado ? 0.4 : azar.entre(0.55, 0.75));
+      if (atrasLado) atras += trazo;
+      else frente += trazo;
+    }
+  }
+
+  return { defs: '', atras, markup: frente };
 }
