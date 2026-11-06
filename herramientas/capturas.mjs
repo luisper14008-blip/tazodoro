@@ -65,11 +65,13 @@ async function capturar(url, archivo, [ancho, alto]) {
 }
 
 // Opciones: --bebida=latte (bebida de las capturas de la app), --tema=retro, --bebidas (una hoja por bebida
-// en el laboratorio), --demo (tareas y una semana de historial de ejemplo) y --paneles (tareas, estadísticas y sonidos abiertos).
+// en el laboratorio), --demo (tareas y una semana de historial de ejemplo), --paneles (tareas, estadísticas y sonidos abiertos)
+// y --tamanos=1440x900,390x844,844x390 (anchos y altos; por defecto los dos primeros).
 const opcion = (nombre) => process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split('=')[1] ?? null;
 const bebida = opcion('bebida');
 const tema = opcion('tema');
 const demo = process.argv.includes('--demo') || process.argv.includes('--paneles');
+const listaTamanos = opcion('tamanos') ? opcion('tamanos').split(',').map((t) => t.split('x').map(Number)) : tamanos;
 const BEBIDAS = ['americano', 'espresso', 'cappuccino', 'latte', 'mocha', 'caramelMacchiato', 'coldBrew', 'frappe', 'bubbleTea', 'matcha', 'chai', 'chocolate'];
 
 await rm(perfiles, { recursive: true, force: true }).catch(() => {});
@@ -93,9 +95,9 @@ if (process.argv.includes('--paneles')) {
   for (const panel of ['tareas', 'estadisticas', 'sonidos']) listaEstados.push([`panel-${panel}`, `bloque=foco&progreso=35&panel=${panel}`]);
 }
 
-for (const [ancho, alto] of tamanos) {
+for (const [ancho, alto] of listaTamanos) {
   for (const [nombre, consulta] of listaEstados) {
-    const archivo = join(carpeta, `${prefijo}-${ancho}-${nombre}.png`);
+    const archivo = join(carpeta, `${prefijo}-${ancho}${alto < ancho && ancho < 1000 ? 'x' + alto : ''}-${nombre}.png`);
     const app = `${base}?prueba=1&quieto=1&${consulta}${bebida ? `&bebida=${bebida}` : ''}${tema ? `&tema=${tema}` : ''}${demo ? '&demo=1' : ''}`;
     // Anchos de celular: la app va dentro de un marco, porque la ventana no puede ser tan angosta.
     const celular = ancho < 600;

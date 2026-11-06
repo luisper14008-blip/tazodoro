@@ -21,6 +21,10 @@ svg { display: block; }
   --acento: #f2a33a;
   --acento-texto: #1e140a;
   --acento-hover: #ffb85c;
+  /* Variantes del acento con contraste AA sobre los paneles (los temas claros las oscurecen). */
+  --enlace: var(--acento);
+  --grafico: var(--acento);
+  --acento-icono: var(--acento);
   --vidrio: rgba(28, 36, 58, 0.55);
   --vidrio-fuerte: rgba(22, 28, 46, 0.9);
   --vidrio-borde: rgba(255, 255, 255, 0.13);
@@ -76,7 +80,7 @@ svg { display: block; }
 .marca-nombre { font-family: var(--fuente-marca, var(--fuente-display)); font-weight: 400; font-size: clamp(1.35rem, 2.6vw, 1.7rem); letter-spacing: 0.01em; line-height: 1; white-space: nowrap; }
 .racha { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px 0 10px; border-radius: 999px; font-weight: 700; font-variant-numeric: tabular-nums; transition: background-color 0.2s, border-color 0.2s; }
 .racha:hover { background: var(--vidrio-fuerte); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
-.racha-icono { color: var(--acento); width: 22px; height: 22px; }
+.racha-icono { color: var(--acento-icono); width: 22px; height: 22px; }
 .racha-icono svg { width: 100%; height: 100%; }
 .barra-iconos { display: flex; gap: 10px; }
 .boton-icono { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
@@ -107,6 +111,8 @@ svg { display: block; }
 
 /* ---------- Centro ---------- */
 .centro { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 0 4px; min-width: 0; }
+/* Pedido, reloj, estado, tarea y botones: debajo de la bebida (o a su lado con el celular acostado). */
+.mando { display: flex; flex-direction: column; align-items: center; min-width: 0; max-width: 100%; }
 .escena {
   position: relative;
   width: min(calc(100vw - 32px), calc(var(--alto-escena) * 400 / 460));
@@ -137,7 +143,7 @@ svg { display: block; }
 
 .reloj {
   font-family: var(--fuente-display);
-  font-size: clamp(3.4rem, 8vw, 5.6rem);
+  font-size: clamp(3.4rem, min(8vw, 10vh), 5.6rem);
   line-height: 1; letter-spacing: 0.01em;
   margin-top: 2px; font-variant-numeric: tabular-nums lining-nums;
   text-shadow: 0 6px 30px rgba(0, 0, 0, 0.35);
@@ -157,7 +163,7 @@ svg { display: block; }
   transition: background-color 0.2s, border-color 0.2s;
 }
 .tarea-activa:hover { background: var(--vidrio); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
-.tarea-activa-icono { flex: none; width: 18px; height: 18px; color: var(--acento); }
+.tarea-activa-icono { flex: none; width: 18px; height: 18px; color: var(--acento-icono); }
 .tarea-activa-icono svg { width: 100%; height: 100%; }
 .tarea-activa-texto { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 /* Con la línea de la tarea, la escena cede su alto para que nada se salga de la pantalla. */
@@ -166,7 +172,7 @@ svg { display: block; }
 .controles { position: relative; display: flex; align-items: center; gap: 18px; margin-top: 18px; }
 /* La ventana flotante queda a un lado, para que Empezar siga centrado bajo la bebida. */
 .boton-flotante-abrir { position: absolute; left: calc(100% + 22px); top: 50%; transform: translateY(-50%); }
-.boton-flotante-abrir[aria-pressed='true'] { color: var(--acento); border-color: color-mix(in srgb, var(--acento) 60%, transparent); }
+.boton-flotante-abrir[aria-pressed='true'] { color: var(--acento-icono); border-color: color-mix(in srgb, var(--acento) 60%, transparent); }
 .boton-redondo { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 50%; padding: 0; transition: background-color 0.2s, border-color 0.2s; }
 .boton-redondo svg { width: 22px; height: 22px; }
 .boton-redondo:hover { background: var(--vidrio-fuerte); border-color: color-mix(in srgb, var(--texto) 24%, transparent); }
@@ -186,6 +192,14 @@ svg { display: block; }
 
 /* ---------- Pie ---------- */
 .pie { display: flex; justify-content: flex-start; padding: 8px 6px 2px; color: var(--texto-suave); font-size: 0.85rem; }
+/* En pantallas anchas los atajos van en la esquina y le dejan su fila a la bebida. */
+@media (min-width: 900px) {
+  .pie { position: absolute; left: max(16px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); padding: 0 6px; }
+}
+/* En pantallas táctiles no hay teclado a mano: los atajos sobran. */
+@media (hover: none) and (pointer: coarse) {
+  .pie { display: none; }
+}
 .atajos { display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .atajo { display: inline-flex; align-items: center; gap: 6px; }
 kbd {
@@ -223,7 +237,7 @@ kbd {
 .opcion-tamano:hover:not(:disabled) { background: color-mix(in srgb, var(--texto) 8%, transparent); }
 .opcion-tamano[aria-checked='true'] { border-color: var(--acento); background: var(--activo); }
 .opcion-tamano:disabled { opacity: 0.45; }
-.opcion-icono { width: 34px; height: 34px; color: var(--acento); }
+.opcion-icono { width: 34px; height: 34px; color: var(--acento-icono); }
 .opcion-icono svg { width: 100%; height: 100%; }
 .opcion-nombre { font-weight: 700; font-size: 0.9rem; }
 .opcion-minutos { color: var(--texto-suave); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
@@ -259,7 +273,7 @@ input[type='range'] { flex: 1; accent-color: var(--acento); min-height: 28px; }
 .boton-suave:hover { background: color-mix(in srgb, var(--texto) 12%, transparent); }
 .boton-acento { border: 0; background: var(--acento); color: var(--acento-texto); }
 .boton-acento:hover { background: var(--acento-hover); }
-.boton-texto { border: 0; background: none; color: var(--acento); padding: 0 4px; justify-self: start; text-decoration: underline; text-underline-offset: 3px; }
+.boton-texto { border: 0; background: none; color: var(--enlace); padding: 0 4px; justify-self: start; text-decoration: underline; text-underline-offset: 3px; }
 
 .grupo-ajustes { display: grid; gap: 12px; }
 .grupo-ajustes h3 { font-size: 1rem; font-weight: 700; }
@@ -352,6 +366,12 @@ input[type='range'] { flex: 1; accent-color: var(--acento); min-height: 28px; }
   .prueba-botones .boton-suave { min-height: 30px; }
 }
 
+/* Celulares de 320 px: el nombre queda para los lectores de pantalla (y en la pestaña). */
+@media (max-width: 340px) {
+  .marca-nombre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .boton-flotante-abrir { display: none; }
+}
+
 /* Celulares de 360 px: la barra entra completa. */
 @media (max-width: 380px) {
   .marca { gap: 8px; }
@@ -367,6 +387,41 @@ input[type='range'] { flex: 1; accent-color: var(--acento); min-height: 28px; }
 @media (max-height: 640px) and (min-width: 601px) {
   .app { --alto-escena: clamp(200px, calc(100dvh - 380px), 520px); }
   .app.con-tarea { --alto-escena: clamp(190px, calc(100dvh - 422px), 520px); }
+}
+
+/* En fila: la bebida a la izquierda; pedido, reloj y botones a la derecha.
+   Celular acostado, o ventana ancha y baja (laptop con la barra del navegador), donde apilada la bebida quedaría chica.
+   El mismo par de condiciones se repite en los temas que ocultan adornos en esta vista. */
+@media (orientation: landscape) and (max-height: 500px), (min-aspect-ratio: 3/2) and (max-height: 720px) {
+  .app, .app.con-tarea { --alto-escena: calc(100dvh - 150px); }
+  .centro { flex-direction: row; gap: clamp(16px, 5vw, 72px); padding: 2px 0; }
+  .reloj { font-size: clamp(2.6rem, 14vh, 5.6rem); }
+  .tarea-activa { max-width: min(46vw, 400px); }
+  .boton-flotante-abrir { position: static; transform: none; }
+}
+/* Solo el celular acostado: todo más compacto y sin atajos. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .app { padding-top: max(8px, env(safe-area-inset-top)); }
+  .bloques { margin-top: 8px; }
+  .bloque { min-height: 40px; padding: 0 12px 0 14px; gap: 7px; }
+  .bloque-nombre { display: none; }
+  .bloque-breve { display: inline; }
+  .estado-linea { margin-top: 2px; }
+  .tarea-activa { margin-top: 6px; }
+  .controles { gap: 10px; margin-top: 10px; }
+  .boton-principal { min-width: 150px; height: 52px; padding: 0 22px 0 18px; font-size: 1.1rem; }
+  .boton-redondo { width: 46px; height: 46px; }
+  .pie { display: none; }
+  /* El panel del modo de prueba taparía el reloj: acostado no se muestra (de pie, sí). */
+  .panel-prueba { display: none; }
+}
+/* En fila y con ancho de sobra: las pestañas suben a la barra (con nombres cortos en el celular, completos en la laptop). */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 800px), (min-aspect-ratio: 3/2) and (max-height: 720px) and (min-width: 1100px) {
+  .app { grid-template-rows: auto 1fr; }
+  .app, .app.con-tarea { --alto-escena: calc(100dvh - 86px); }
+  .barra, .bloques { grid-row: 1; grid-column: 1; }
+  .bloques { justify-self: center; align-self: center; margin-top: 0; }
+  .centro { grid-row: 2; }
 }
 
 @media (prefers-reduced-motion: reduce) {

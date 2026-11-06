@@ -1,0 +1,15 @@
+{
+  "name": "Tazodoro",
+  "short_name": "Tazodoro",
+  "description": "Un Pomodoro de café: tu bebida se vacía al ritmo del tiempo y se vuelve a llenar en los descansos.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#141B2E",
+  "theme_color": "#141B2E",
+  "icons": [
+    { "src": "assets/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

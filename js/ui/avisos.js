@@ -65,10 +65,17 @@ export function pedirPermisoAvisos() {
   }
 }
 
-export function notificar(titulo, cuerpo) {
-  if (permisoAvisos() !== 'granted') return;
-  if (document.visibilityState === 'visible' && document.hasFocus()) return;
-  const opciones = { body: cuerpo, tag: 'tazodoro', silent: true, icon: document.querySelector('link[rel="icon"]')?.href };
+// Service worker mínimo (sw.js): Android solo muestra avisos a través de él.
+// Necesita https o localhost; sin él, los avisos salen directo desde la página (computador).
+let registroAvisos = null;
+export function registrarAvisos() {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+  navigator.serviceWorker.register('sw.js').then((registro) => {
+    registroAvisos = registro;
+  }).catch(() => {});
+}
+
+function avisoDirecto(titulo, opciones) {
   try {
     const aviso = new Notification(titulo, opciones);
     aviso.onclick = () => {
@@ -76,7 +83,19 @@ export function notificar(titulo, cuerpo) {
       aviso.close();
     };
   } catch {
-    // Android solo muestra notificaciones desde un service worker (llega en la fase 5).
-    navigator.serviceWorker?.ready?.then((registro) => registro.showNotification(titulo, opciones)).catch(() => {});
+    /* este navegador no deja crear avisos desde la página */
   }
+}
+
+export function notificar(titulo, cuerpo) {
+  if (permisoAvisos() !== 'granted') return;
+  if (document.visibilityState === 'visible' && document.hasFocus()) return;
+  const opciones = { body: cuerpo, tag: 'tazodoro', silent: true, lang: 'es', icon: 'assets/icono.svg' };
+  // Con el service worker activo el aviso sale igual en Android y en computador,
+  // y al tocarlo vuelve al frente esta pestaña.
+  if (registroAvisos?.active) {
+    registroAvisos.showNotification(titulo, opciones).catch(() => avisoDirecto(titulo, opciones));
+    return;
+  }
+  avisoDirecto(titulo, opciones);
 }

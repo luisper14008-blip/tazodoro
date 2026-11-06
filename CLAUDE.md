@@ -22,6 +22,12 @@ Pomodoro de café: la bebida que eliges se vacía al ritmo del tiempo y se vuelv
 - Cada bebida: brillos, sombras internas, textura y superficie con onda leve. Luz cálida de la lámpara (derecha) y relleno frío de la ventana (izquierda).
 - La calidad visual manda: no pasar a la siguiente bebida hasta que la actual se vea apetitosa y se vacíe con fluidez.
 
+## Pantallas
+- `ajustarEscena()` (main.js) mide lo que ocupan barra, pestañas y `.mando` (pedido, reloj, estado, tarea y botones) y le da el alto libre a la escena con `--alto-escena` (tope 56 % del alto; acostado, 86 %). Se recalcula con ResizeObserver, al cambiar de tema y al cargar las letras. Los `--alto-escena` del CSS son solo el valor inicial.
+- Celular acostado (`orientation: landscape` y alto ≤ 500 px): `.centro` pasa a fila, la bebida a la izquierda y `.mando` a la derecha; desde 800 px de ancho las pestañas suben a la barra. Los temas ocultan lo que choca con el reloj (maceta del nocturno, neón del retro; el retro pone el mando en una pizarra).
+- Desde 900 px de ancho los atajos van en la esquina (fuera de la fila); en pantallas táctiles no se muestran. Bajo 340 px el nombre queda solo para lectores de pantalla.
+- Probado sin desbordes de 320×568 a 1920×1080, más celulares acostados (568×320 desborda 15 px: aceptado).
+
 ## Mecánica
 - Nivel en concentración = restante / total (1 → 0). En descanso sube (0 → 1). El nivel es altura, no volumen.
 - El tiempo se calcula con la hora de fin (epoch ms) guardada en localStorage: recargar continúa donde iba.
@@ -76,19 +82,21 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - `css/temas/*.css` redefine variables bajo `.app[data-tema='…']`: colores, `--fuente-marca`, `--fuente-display` (reloj), `--fuente-titulos`, `--fuente-ui`, `--fuente-mano`, `--ancho-cifra`, `--vapor`, `--maquina-*`, y ajusta controles. También define su miniatura `.vista-escena[data-vista='…']`.
 - Al cambiar de tema se rearman el fondo, la bebida (misma luz nueva y nivel) y las miniaturas de la carta.
 - Los tintes sutiles de la base usan `color-mix(... var(--texto) N%, transparent)` para verse en temas claros y oscuros.
+- El acento claro de los temas claros no llega a AA sobre los paneles, así que cada tema puede definir `--enlace` (texto tipo enlace, 4,5:1), `--grafico` (barras de estadísticas; los días pasados van al 80 %, 3:1) y `--acento-icono` (íconos con significado, 3:1). Por defecto valen `--acento`.
+- Alto contraste de Windows (`forced-colors`, al final de `css/paneles.css`): las ilustraciones conservan sus colores; interruptores, casillas y lo elegido usan colores del sistema y un contorno.
 - `herramientas/contraste.mjs` revisa los pares de color de cada tema contra AA. Si agregas un tema, agrega sus pares.
-- Añadir un tema: entrada en `TEMAS` y `ORDEN_TEMAS`, archivo `css/temas/<id>.css`, fondo en `js/fondos/<id>.js`, textos en `textos.temas` y sus pares en `contraste.mjs`.
+- Añadir un tema: entrada en `TEMAS` y `ORDEN_TEMAS`, archivo `css/temas/<id>.css` (con `--enlace`, `--grafico` y `--acento-icono` si su acento es claro), fondo en `js/fondos/<id>.js`, textos en `textos.temas` y sus pares en `contraste.mjs`. Revisar también la vista acostada.
 
 ## Fases
 - [x] **Fase 1** (2026-11-04): estructura, temporizador completo, tamaños, ciclo con recarga, ajustes básicos, Cappuccino terminado y tema Cafetería nocturna lo-fi. Incluye campanita, notificación, favicon que se vacía y modo de prueba. Recarga del Cappuccino: la cafetera sirve el espresso (hasta 30 %) y la jarrita la leche; el corazón se forma al final.
 - [x] **Fase 2** (2026-11-05, rama `fase-2-bebidas`): las otras 11 bebidas y la carta. La carta (`js/ui/carta.js`) reemplazó a la ventanita de tamaños: elige bebida y tamaño en un solo lugar; las miniaturas usan el mismo renderizador, quietas.
 - [x] **Fase 3** (2026-11-05, rama `fase-3-temas`): Pastel kawaii (carita en la bebida), Retro de cafetería (neón, mostrador, damero) y Kraft natural (papel con fibras, hojas y granos), con selector de vista previa en Ajustes. El tema se aplica al instante y se recuerda.
 - [x] **Fase 4** (2026-11-05, rama `fase-4-funciones`): sonidos de ambiente sintetizados (`js/audio/ambientes.js`; murmullo, lluvia y cafetera, con volumen y silencio general; solo la pestaña con el candado `tazodoro-ambientes` los toca; para usar grabaciones CC0, rutas en `FUENTES`), tareas en panel lateral (`js/tareas.js`, `js/ui/tareas.js`; la tarea en curso va bajo el reloj y cada taza terminada le suma), estadísticas (`js/estadisticas.js`, `js/ui/estadisticas.js`; la racha de la barra las abre; descargar y borrar datos) y ventana flotante (`js/ui/flotante.js`, Document PiP con la mesa del tema; si el navegador no puede, el botón se oculta con aviso). Estilos en `css/paneles.css`. Textos con plurales `{ uno, otros }`.
-- [ ] **Fase 5**: responsive, accesibilidad, rendimiento, README, service worker mínimo para avisos en Android y preparación para publicar.
+- [x] **Fase 5** (2026-11-06, rama `fase-5-publicar`): escena que se ajusta al alto libre y vista acostada en dos columnas; accesibilidad (contraste AA de paneles y gráficos, `aria-haspopup`, alto contraste de Windows, orden de foco revisado); precarga de los 46 módulos (`herramientas/precargas.mjs`); `sw.js` mínimo (solo avisos: Android no los deja crear desde la página) y `manifest.webmanifest` con `assets/icono.svg` (la app se puede instalar); README, `.nojekyll` y meta descripción. Probado en Edge sin ventana en la raíz y en una subcarpeta (`herramientas/instalacion.mjs`).
 
 ## Cierre de cada fase
 1. `node herramientas/servidor.mjs` → http://localhost:4173/?prueba=1 (Python no está instalado).
-2. `node herramientas/capturas.mjs faseN`: capturas con la bebida al 100 %, 50 %, 0 % y durante un descanso, a 1440 y 390 px, en `capturas/`.
+2. `node herramientas/capturas.mjs faseN`: capturas con la bebida al 100 %, 50 %, 0 % y durante un descanso, a 1440 y 390 px, en `capturas/` (`--paneles` agrega tareas, estadísticas y sonidos; `--tamanos=1440x900,390x844,844x390` suma el celular acostado).
 3. Revisar la consola, corregir y hacer commit de git.
 4. Actualizar este archivo y detenerse para la revisión del usuario.
 
@@ -97,11 +105,14 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - `laboratorio.html?bebida=cappuccino&estados=foco:1,foco:0.5,corto:0.6&quieto=1`: una bebida en grande en varios estados. Úsalo para pulir cada bebida antes de pasar a la siguiente.
 - `capturas.mjs`: capturas con Edge sin ventana. Los anchos de celular se toman dentro de `marco.html`, porque en Windows la ventana no baja de ~500 px. `--bebida=latte` elige la bebida de las capturas de la app; `--bebidas` agrega una hoja por bebida (100 %, 50 %, 0 % y descanso).
 - Parámetros de prueba: `?prueba=1&quieto=1&tema=retro&bebida=latte&bloque=corto&progreso=40&corriendo=1` (`quieto=1` quita transiciones para capturas exactas). `demo=1` carga tareas y una semana de historial de ejemplo; `panel=tareas|estadisticas|sonidos|carta|ajustes` abre ese panel. `capturas.mjs` acepta `--tema=`, `--demo` y `--paneles`.
-- `contraste.mjs`: contraste AA de cada tema.
+- `contraste.mjs`: contraste AA de cada tema (texto 4,5:1; texto grande y gráficos 3:1).
+- `precargas.mjs`: reescribe en `index.html` los `<link rel="modulepreload">` de todos los módulos que importa `main.js`. Correrlo al agregar, quitar o mover un módulo.
+- `instalacion.mjs [url]`: en Edge sin ventana revisa service worker, manifiesto, que se pueda instalar y que los avisos salgan por el service worker. El navegador de Claude no puede registrar service workers ni abrir la ventana flotante: esto se prueba aquí o en un navegador real.
 - El panel del navegador de Claude suele estar oculto: ahí no corren los cuadros de animación ni las transiciones. El pulso del worker repinta una vez por segundo cuando la página está visible pero sin cuadros.
 
 ## Notas
 - El proyecto está dentro de OneDrive: si git falla por archivos bloqueados, reintentar o pausar la sincronización.
 - No hay Firefox ni Safari en este equipo: el usuario revisa esos navegadores.
 - Git: identidad configurada solo en este repositorio (`git config user.name` / `user.email`). Cambiarla si el usuario prefiere otro nombre o su correo privado de GitHub antes de publicar.
-- Pendientes para fases siguientes: probar la ventana flotante en Chrome/Edge reales (el navegador de Claude no la abre); ocultar los atajos de teclado en pantallas táctiles; service worker para avisos en Android (fase 5).
+- `manifest.webmanifest` y las meta etiquetas de `index.html` tienen su propia copia del nombre y la descripción (no pueden leer `textos.js`): si cambian, cambiarlas allí también.
+- Pendientes: probar la ventana flotante en Chrome/Edge reales (el navegador de Claude no la abre); elegir una licencia antes de publicar; si se quiere evitar pedir letras a Google, servir las fuentes desde la carpeta.

@@ -11,7 +11,7 @@ import { montarCarta } from './ui/carta.js';
 import { montarAjustes } from './ui/ajustes.js';
 import { confirmar } from './ui/dialogo.js';
 import { montarPrueba, aplicarParametros, datosDemo, panelDePrueba } from './ui/prueba.js';
-import { actualizarTitulo, actualizarFavicon, mostrarMensaje, anunciar, pedirPermisoAvisos, notificar } from './ui/avisos.js';
+import { actualizarTitulo, actualizarFavicon, mostrarMensaje, anunciar, pedirPermisoAvisos, notificar, registrarAvisos } from './ui/avisos.js';
 import { desbloquearAudio, silenciar } from './audio/motor.js';
 import { tocarCampanita } from './audio/campanita.js';
 import { crearAmbientes, AMBIENTES } from './audio/ambientes.js';
@@ -57,8 +57,13 @@ function cambiarTema(id) {
   carta.invalidar();
   flotante.actualizar();
   acento = '';
-  alinearMesa();
   pintar();
+  ajustarEscena();
+  alinearMesa();
+  document.fonts?.ready.then(() => {
+    ajustarEscena();
+    alinearMesa();
+  });
 }
 
 // ---------- Bebida y tamaño ----------
@@ -443,6 +448,28 @@ escucharOtrasPestanas((nuevos) => {
   latido();
 });
 
+// ---------- La escena toma el alto libre ----------
+// Mide lo que ocupan los demás (barra, pestañas, reloj, botones, tarea) y le da el resto a la bebida,
+// entre un mínimo y algo más de la mitad del alto. Así nada se sale de la pantalla con ningún tema,
+// tamaño de ventana ni texto. Acostado, la bebida va al lado del reloj y puede usar casi todo el alto.
+const centro = marcoEscena.parentElement;
+const mando = raiz.querySelector('.mando');
+function ajustarEscena() {
+  const alto = window.innerHeight;
+  const estilo = getComputedStyle(centro);
+  const relleno = parseFloat(estilo.paddingTop) + parseFloat(estilo.paddingBottom);
+  const disponible = alto - (raiz.offsetHeight - centro.offsetHeight) - relleno;
+  const enFila = estilo.flexDirection === 'row';
+  const debajo = enFila ? 0 : mando.getBoundingClientRect().bottom - marcoEscena.getBoundingClientRect().bottom;
+  const tope = alto * (enFila ? 0.86 : 0.56);
+  const nuevo = Math.round(Math.max(150, Math.min(tope, disponible - debajo - 4)));
+  if (raiz.style.getPropertyValue('--alto-escena') !== `${nuevo}px`) raiz.style.setProperty('--alto-escena', `${nuevo}px`);
+}
+// Cambian de alto cuando cambia el texto, la letra del tema o el ancho de la ventana.
+const vigiaAlto = new ResizeObserver(() => ajustarEscena());
+['.barra', '.bloques', '.pedido', '.reloj', '.estado-linea', '.tarea-activa', '.controles', '.pie'].forEach((selector) => vigiaAlto.observe(raiz.querySelector(selector)));
+window.addEventListener('resize', ajustarEscena);
+
 // ---------- La mesa se alinea con la escena ----------
 function alinearMesa() {
   const caja = marcoEscena.getBoundingClientRect();
@@ -472,8 +499,14 @@ if (modoPrueba) {
   });
 }
 alCambiarTemporizador('inicio');
+ajustarEscena();
 alinearMesa();
+document.fonts?.ready.then(() => {
+  ajustarEscena();
+  alinearMesa();
+});
 raiz.classList.add('lista');
+registrarAvisos();
 if (modoPrueba && panelDePrueba()) {
   const paneles = { tareas, estadisticas, sonidos, carta, ajustes };
   const botones = { carta: '.pedido', ajustes: '[data-accion="ajustes"]', tareas: '[data-accion="tareas"]', estadisticas: '[data-accion="estadisticas"]', sonidos: '[data-accion="sonidos"]' };

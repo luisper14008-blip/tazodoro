@@ -161,3 +161,8 @@
   [data-tema='nocturna'] .lampara { left: calc(100% - 46px); }
   [data-tema='nocturna'] .fondo-halo { left: calc(100% - 46px); }
 }
+
+/* En fila (celular acostado o ventana baja): el reloj ocupa la derecha, donde iba la maceta. */
+@media (orientation: landscape) and (max-height: 500px), (min-aspect-ratio: 3/2) and (max-height: 720px) {
+  [data-tema='nocturna'] .planta-maceta { display: none; }
+}
