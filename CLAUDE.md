@@ -110,9 +110,16 @@ Tamaños: Pequeña 15, Mediana 25, Grande 50, Personalizada 5-90 min. En el espr
 - `instalacion.mjs [url]`: en Edge sin ventana revisa service worker, manifiesto, que se pueda instalar y que los avisos salgan por el service worker. El navegador de Claude no puede registrar service workers ni abrir la ventana flotante: esto se prueba aquí o en un navegador real.
 - El panel del navegador de Claude suele estar oculto: ahí no corren los cuadros de animación ni las transiciones. El pulso del worker repinta una vez por segundo cuando la página está visible pero sin cuadros.
 
+## Publicación
+- Repositorio público: <https://github.com/luisper14008-blip/tazodoro>. Sin licencia, por decisión del usuario: el código se ve, pero nadie más tiene permiso de reutilizarlo.
+- Sitio: <https://luisper14008-blip.github.io/tazodoro/> (GitHub Pages desde `main`, carpeta raíz, HTTPS forzado). Publicado el 2026-11-06.
+- Hacer `git push` de `main` es publicar: pedir el visto bueno del usuario antes. Pages se reconstruye en uno o dos minutos; después, `node herramientas/instalacion.mjs https://luisper14008-blip.github.io/tazodoro/`.
+- Solo se sube `main`; las ramas de fase quedan en este computador.
+- Las credenciales de GitHub de este repositorio pasan por GitHub CLI (`gh`, sesión de luisper14008-blip), configurado solo en `.git/config`.
+
 ## Notas
 - El proyecto está dentro de OneDrive: si git falla por archivos bloqueados, reintentar o pausar la sincronización.
 - No hay Firefox ni Safari en este equipo: el usuario revisa esos navegadores.
-- Git: identidad configurada solo en este repositorio (`git config user.name` / `user.email`). Cambiarla si el usuario prefiere otro nombre o su correo privado de GitHub antes de publicar.
+- Git: en este repositorio, `user.name` luisper14008 y el correo privado de GitHub `332703372+luisper14008-blip@users.noreply.github.com`. Nunca el Gmail en commits públicos (los 5 commits de las fases se reescribieron con este correo antes de publicar).
 - `manifest.webmanifest` y las meta etiquetas de `index.html` tienen su propia copia del nombre y la descripción (no pueden leer `textos.js`): si cambian, cambiarlas allí también.
-- Pendientes: probar la ventana flotante en Chrome/Edge reales (el navegador de Claude no la abre); elegir una licencia antes de publicar; si se quiere evitar pedir letras a Google, servir las fuentes desde la carpeta.
+- Pendientes: probar la ventana flotante en Chrome/Edge reales (el navegador de Claude no la abre); si se quiere evitar pedir letras a Google, servir las fuentes desde la carpeta.

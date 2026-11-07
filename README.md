@@ -2,6 +2,8 @@
 
 Un Pomodoro de café: la bebida que eliges se vacía al ritmo del tiempo y se vuelve a llenar en los descansos. La taza es el reloj.
 
+**Pruébalo en <https://luisper14008-blip.github.io/tazodoro/>**
+
 Es una página web hecha con HTML, CSS y JavaScript puros. No tiene cuentas, ni servidor propio, ni rastreo: todo lo que guardas se queda en tu navegador.
 
 ## Qué trae
